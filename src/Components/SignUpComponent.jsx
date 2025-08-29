@@ -1,14 +1,15 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import "../Styling/form.css";
+import "../Styling/nav.css";
 import libraryBg from "../Images/bgSignUp4.png";
+import { Link } from "react-router-dom";
 
 export function SignUpComponent() {
   const validationSchema = Yup.object({
     username: Yup.string()
       .min(3, "Name must be at least 3 characters")
       .required("Name is required"),
-
     email: Yup.string()
       .email("Invalid email format")
       .required("Email is required"),
@@ -131,7 +132,11 @@ export function SignUpComponent() {
                 </div>
 
               {/* Submit Button */}
-              <button type="submit" className="form-btn">Submit</button>
+              <button type="submit" className="form-btn m-1">Sign Up!</button>
+               <div>
+                <p className="form-subtitle m-0">Already a Reader??</p>
+                <Link to="/login" className="nav-link" style={{color:"white"}}>Log in</Link>
+              </div>
             </Form>
           </div>
         )}

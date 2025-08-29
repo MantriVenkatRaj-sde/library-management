@@ -1,0 +1,75 @@
+.Welcome {
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-family: 'Merriweather', serif; /* Elegant serif font */
+}
+.welcome-left, 
+.welcome-right {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.welcome-box {
+    background: rgba(120, 75, 75, 0.187); /* semi-transparent white */
+    padding: 2rem;
+    border-radius: 2px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.543); /* slightly stronger shadow */
+    width: 100%;
+    text-align: center;
+    /* Add subtle backdrop blur for style */
+    backdrop-filter: blur(5px);
+}
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65); /* Dark overlay for readability */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-content {
+  color: #fdf8f3;
+  
+  backdrop-filter: blur(4px);
+}
+
+
+.Welcome-title {
+  font-size: 3rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: #fdf8f3;
+}
+
+.Welcome-subtitle {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  font-weight: 300;
+  color: #d9d6cf;
+}
+
+.cta-btn {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 2rem;
+  background-color: #d4a373; /* soft gold/orange */
+  color: #1c1c1c;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cta-btn:hover {
+  background-color: #b5835a;
+  transform: translateY(-2px);
+}

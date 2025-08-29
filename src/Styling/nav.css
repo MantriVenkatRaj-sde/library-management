@@ -1,0 +1,11 @@
+.nav-link {
+  text-decoration: none;
+  color: #d4a373;      /* normal color */
+  font-weight: 500;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ffd7a0;       /* brighter on hover */
+  text-shadow: 0 0 6px rgba(255, 215, 160, 0.8); /* subtle glow effect */
+}

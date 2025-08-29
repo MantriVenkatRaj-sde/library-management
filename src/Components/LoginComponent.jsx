@@ -1,7 +1,9 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import "../Styling/form.css";
+import "../Styling/nav.css";
 import libraryBg from "../Images/bg2.png";
+import { Link } from "react-router-dom";
 
 
 export function LoginComponent() {
@@ -59,7 +61,12 @@ export function LoginComponent() {
                 <ErrorMessage name="password" component="div" className="error" />
               </div>
 
-              <button type="submit" className="form-btn">Submit</button>
+              <button type="submit" className="form-btn m-b-1">Log in!</button>
+              <div>
+                <p className="form-subtitle m-0 ">New Reader?</p>
+                <Link to="/signup" className="nav-link" style={{color:"white"}}>Sign up</Link>
+              </div>
+             
             </Form>
           </div>
         )}
