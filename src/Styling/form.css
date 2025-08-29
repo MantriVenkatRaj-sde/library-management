@@ -1,82 +1,110 @@
 /* Center form on screen */
+/* Body and html full height */
+
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+
+
+/* Form container - use flex and full size of parent */
 .form-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
-/* Box styling */
+/* Form box - slightly transparent and centered */
 .form-box {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  width: 350px;
-  text-align: center;
+    background: rgba(120, 75, 75, 0.187); /* semi-transparent white */
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.543); /* slightly stronger shadow */
+    width: 350px;
+    max-width: 90%;
+    text-align: center;
+    /* Add subtle backdrop blur for style */
+    backdrop-filter: blur(5px);
+}
+/* Signup-specific overrides */
+.signup-box{
+  width: 600px;   /* wider form only for signup */
 }
 
-/* Title & subtitle */
+/* For grouping two inputs in one row */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* two equal columns */
+  gap: 1rem; /* space between inputs */
+}
+
+.form-row .form-group {
+  margin-bottom: 1rem;
+}
+
+/* Titles */
 .form-title {
-  font-size: 1.8rem;
-  margin-bottom: 0.2rem;
-  color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 0.2rem;
+    color: #dedada;
 }
 
 .form-subtitle {
-  font-size: 0.9rem;
-  color: #777;
-  margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: #eee9e9;
+    margin-bottom: 1.5rem;
 }
 
 /* Form groups */
 .form-group {
-  text-align: left;
-  margin-bottom: 1rem;
+    text-align: left;
+    margin-bottom: 1rem;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-size: 0.95rem;
-  color: #444;
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
+    color: #eee9e9;
 }
 
 .form-input {
-  width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
 }
 
 .form-input:focus {
-  border-color: #007bff;
-  outline: none;
+    border-color: #007bff;
+    outline: none;
 }
 
 /* Error message */
 .error {
-  color: red;
-  font-size: 0.85rem;
-  margin-top: 0.3rem;
+    color: red;
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
 }
 
 /* Button */
 .form-btn {
-  width: 100%;
-  padding: 0.7rem;
-  font-size: 1rem;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    width: 100%;
+    padding: 0.7rem;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .form-btn:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
