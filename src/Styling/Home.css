@@ -1,0 +1,14 @@
+.home-container {
+  background-color: rgb(20, 18, 18);
+  min-height: 100vh;
+}
+.overlay {
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  height: 100%;
+}
+  .home-container h2 {
+  margin-top: 0;
+  padding-top: 20px; /* optional: add controlled spacing */
+  color: white;
+}

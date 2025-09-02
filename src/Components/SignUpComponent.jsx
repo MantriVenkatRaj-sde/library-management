@@ -4,8 +4,30 @@ import "../Styling/form.css";
 import "../Styling/nav.css";
 import libraryBg from "../Images/bgSignUp4.png";
 import { Link } from "react-router-dom";
+import { useAuth } from "../Authentication/AuthContext";
 
 export function SignUpComponent() {
+
+  const auth=useAuth();
+  
+  function handleSignUp(values){
+    try{
+      const user={
+            username:values.username,
+            email: values.email,
+            phone: values.phone,
+            address: values.address,
+            age:values.age,
+            password:values.password
+        }
+      auth.signup(user);
+      console.log("Registered Successfully");
+    }   
+    catch(error){
+      console.log(error);
+    }
+  }
+
   const validationSchema = Yup.object({
     username: Yup.string()
       .min(3, "Name must be at least 3 characters")
@@ -67,6 +89,15 @@ export function SignUpComponent() {
         validateOnBlur={false}
         onSubmit={(values) => {
           console.log(values);
+          const user={
+            username:values.username,
+            email: values.email,
+            phone: values.phone,
+            address: values.address,
+            age:values.age,
+            password:values.password
+          }
+          handleSignUp(values);
         }}
       >
         {() => (

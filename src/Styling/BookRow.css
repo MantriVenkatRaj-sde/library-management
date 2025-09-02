@@ -1,0 +1,73 @@
+.bookrow-container {
+  /* margin: 40px 0; */
+  padding: 20px;
+  position: relative;
+  color: white;
+}
+
+.bookrow-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+
+.bookrow-wrapper {
+  position: relative;
+}
+
+.bookrow {
+  display: flex;
+  overflow-x: scroll;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+}
+.bookrow::-webkit-scrollbar {
+  display: none;
+}
+
+.book-card {
+  min-width: 180px;
+  margin-right: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+.book-card img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+.book-card:hover {
+  transform: scale(1.08);
+}
+.book-card p {
+  padding: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.scroll-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.6);
+  border: none;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 10;
+  color: white;
+  /* transition: background 0.3s; */
+}
+.scroll-btn:hover {
+  background: rgba(0,0,0,0.9);
+}
+.scroll-btn.left {
+  left: 0;
+}
+.scroll-btn.right {
+  right: 0;
+}

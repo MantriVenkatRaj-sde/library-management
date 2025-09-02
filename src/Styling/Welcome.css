@@ -8,14 +8,14 @@
   position: relative;
   font-family: 'Merriweather', serif; /* Elegant serif font */
 }
-.welcome-left, 
+/* .welcome-left, 
 .welcome-right {
   flex: 1;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-}
+} */
 .welcome-box {
     background: rgba(120, 75, 75, 0.187); /* semi-transparent white */
     padding: 2rem;

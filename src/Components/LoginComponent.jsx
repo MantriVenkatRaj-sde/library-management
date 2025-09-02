@@ -3,7 +3,9 @@ import * as Yup from "yup";
 import "../Styling/form.css";
 import "../Styling/nav.css";
 import libraryBg from "../Images/bg2.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../Authentication/AuthContext";
+import { useState } from "react";
 
 
 export function LoginComponent() {
@@ -15,6 +17,31 @@ export function LoginComponent() {
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
   });
+
+  const auth=useAuth();
+  const [authenticated,setAuthenticated]=useState(false);
+  const navigate=useNavigate();
+  const [message,setMessage]=useState("");
+  async function handleLogin(values){
+    try{const result = await auth.login(values.username, values.password);
+      setAuthenticated(result); 
+      if(result){
+
+        console.log(values);
+        console.log("Logged In Successfully");
+        navigate(`/home`);
+      }
+      else{
+        console.log("User not authenticated");
+        setMessage("New Reader? Create an account ! Sign Up !");
+        navigate(`/login`)
+      }
+    }
+    catch(errors){
+      console.log(errors);
+    }
+  }
+
 
   return (
      <div
@@ -39,6 +66,7 @@ export function LoginComponent() {
         validateOnBlur={false}
         onSubmit={(values) => {
           console.log(values);
+          handleLogin(values)
         }}
       >
         {() => (
@@ -46,7 +74,7 @@ export function LoginComponent() {
             <Form className="form-box">
               <h2 className="form-title">Sign In</h2>
               <p className="form-subtitle">Access your collection of literary treasures</p>
-
+              {message && <div className="message error">{message}</div>}
               {/* Username */}
               <div className="form-group">
                 <label htmlFor="username">Reader Name</label>
