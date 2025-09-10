@@ -1,0 +1,61 @@
+.bookcontainer {
+  padding-top: 90px; /* header height + some spacing */
+  min-height: calc(100vh - 90px); /* fills full screen minus header */
+  background-color: #1c232b; /* prevent white line */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+.cover-img {
+  max-width: 400px;   /* control max width */
+  width: 100%;        /* scale responsively */
+  height: auto;       /* keep aspect ratio */
+  border-radius: 8px; /* optional rounded corners */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6); /* optional shadow */
+  position: relative;
+  
+}
+.cover-img:hover{
+    transition: 0.5s;
+    transform: scale(1.04);
+}
+
+.book-title{
+    color: antiquewhite;
+    font-weight: bold;
+    margin-top: 1rem;
+    font-weight: bold;
+    /* justify-content: flex; */
+    text-align: center;
+    align-content:center ;
+    max-width: 80%; /* prevents long titles from overflowing */
+}
+
+.img-container {
+  border: 2px solid rgb(18, 71, 94);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;  
+  margin: 1rem auto; 
+  
+}
+
+.my-container {
+  display: flex;
+  justify-content: flex-start;
+  border: 2px solid rgb(18, 71, 94); /* width + style + color */
+  padding: 1rem;                        /* spacing inside box */
+  border-radius: 8px;                   /* optional rounded corners */
+  margin: 1rem auto;                    /* spacing outside box */
+  background-color: #222831;            /* optional dark background */
+  width: 80%;                         /* fixed width for demo */
+  flex-direction: column;
+  align-items: flex-start;
+}
+.text-justify {
+  text-align: justify;
+  line-height: 1.6; /* extra spacing for readability */
+}

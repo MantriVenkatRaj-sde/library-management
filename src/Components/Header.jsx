@@ -6,9 +6,9 @@ export default function Header() {
     <header className="header">
       <div className="nav-left">
         <Link to="/home" className="nav-link">Home</Link>
-        <Link to="/library" className="nav-link">Library</Link>
+        {/* <Link to="/library" className="nav-link">Library</Link>
         <Link to="/recommendations" className="nav-link">Recommendations</Link>
-        <Link to="/profile" className="nav-link">Profile</Link>
+        <Link to="/profile" className="nav-link">Profile</Link> */}
       </div>
 
       <div className="nav-right">
