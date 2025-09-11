@@ -8,6 +8,9 @@ import { WelcomeComponent } from './Components/WelcomeComponent';
 import { HomeComponent } from './Components/HomeComponent';
 import AuthProvider, { useAuth }  from './Authentication/AuthContext';
 import { BookComponent } from './Components/BookComponent';
+import { SearchByTagComponent } from './Components/SearchByTagComponent';
+
+
 
 function App() {
 
@@ -32,6 +35,7 @@ function App() {
             <Route path="/signup" element={<SignUpComponent />} />
             <Route path="/home" element={<AuthenticatePath><HomeComponent/></AuthenticatePath>} />
             <Route path="/home/book/:isbn" element={<AuthenticatePath><BookComponent/></AuthenticatePath>} />
+            <Route path="/:genre/books" element={<AuthenticatePath><SearchByTagComponent/></AuthenticatePath>} />
             {/* Later you can add more pages like Home, Library, Profile */}
           </Routes>
         </div>

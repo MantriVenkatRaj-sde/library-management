@@ -19,3 +19,8 @@ export function findByGenre(genre) {
 export function findBookByISBN(isbn) {
     return apiClient.get(`/book/${isbn}`);
 }
+
+export function findBooksByGenre(genre) {
+    return apiClient.get(`/${genre}/books`);
+}
+
