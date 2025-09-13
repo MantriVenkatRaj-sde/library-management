@@ -70,34 +70,17 @@ export default function Header() {
     if (!q) return;
 
     try {
-      // First try title
-      const titleResp = await findByBookTitle(q);
-      // if response and data exist, navigate to title search results
-      if (titleResp?.data && titleResp.data.length > 0) {
-        // pass q in the URL or use a state — choose your routing convention
-        navigate(`/search/title/${encodeURIComponent(q)}`);
-        setOverlayOpen(false);
-        return;
-      }
-    } catch (errTitle) {
-      // ignore and try author below
-    }
+     
+      // navigate to results page and pass results in state for instant render
+      navigate(`/search/${q}`);
 
-    try {
-      const authorResp = await findByAuthor(q);
-      if (authorResp?.data && authorResp.data.length > 0) {
-        navigate(`/search/author/${encodeURIComponent(q)}`);
-        setOverlayOpen(false);
-        return;
-      }
-    } catch (errAuthor) {
-      // no results
+      setOverlayOpen(false);
+    } catch (err) {
+      console.error("Search error", err);
+      // fallback: navigate to page that will re-fetch
+      navigate(`/search/${q}`);
+      setOverlayOpen(false);
     }
-
-    // fallback: no results
-    console.log("No Results Found");
-    navigate(`/no-results?q=${encodeURIComponent(q)}`);
-    setOverlayOpen(false);
   };
 
   return (

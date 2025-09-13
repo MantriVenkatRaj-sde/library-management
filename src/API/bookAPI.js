@@ -12,10 +12,6 @@ export function findByBookTitle(title) {
     return apiClient.get(`/by-title/${title}`);
 }
 
-export function findByGenre(genre) {
-    return apiClient.get(`/by-genre/${genre}`);
-}
-
 export function findBookByISBN(isbn) {
     return apiClient.get(`/book/${isbn}`);
 }
@@ -24,3 +20,6 @@ export function findBooksByGenre(genre) {
     return apiClient.get(`/${genre}/books`);
 }
 
+export function searchQuery(query) {
+    return apiClient.get(`/books/search/${query}`);
+}
