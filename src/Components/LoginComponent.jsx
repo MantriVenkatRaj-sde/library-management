@@ -6,6 +6,8 @@ import libraryBg from "../Images/bg2.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../Authentication/AuthContext";
 import { useState } from "react";
+import { getAllGenres } from "../API/GenreAPI";
+import { useGenres } from "../Contexts/GenreContext";
 
 
 export function LoginComponent() {
@@ -22,6 +24,7 @@ export function LoginComponent() {
   const [authenticated,setAuthenticated]=useState(false);
   const navigate=useNavigate();
   const [message,setMessage]=useState("");
+  const {genres,setGenres}=useGenres();
   async function handleLogin(values){
     try{const result = await auth.login(values.username, values.password);
       setAuthenticated(result); 
@@ -29,6 +32,17 @@ export function LoginComponent() {
 
         console.log(values);
         console.log("Logged In Successfully");
+         try {
+          const response = await getAllGenres(); // await the API call
+          // assuming response.data is an array of genres
+          setGenres(response.data);
+          console.log("Genres loaded:", response.data);
+        } catch (err) {
+          console.error("Failed to fetch genres:", err);
+          setGenres([]); // fallback to empty array so UI doesn't break
+        }
+
+                          
         navigate(`/home`);
       }
       else{

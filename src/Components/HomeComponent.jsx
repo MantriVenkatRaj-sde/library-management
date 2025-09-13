@@ -5,7 +5,7 @@ import { getAllBooks } from "../API/bookAPI";
 
 export function HomeComponent() {
   const { data: allBooks = [], isLoading } = useQuery({
-    queryKey: ["books"],
+    queryKey: ["books","home"],
     queryFn: async () => {
       const response = await getAllBooks();
       return response?.data ?? [];

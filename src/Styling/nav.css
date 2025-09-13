@@ -9,3 +9,202 @@
   color: #ffd7a0;       /* brighter on hover */
   text-shadow: 0 0 6px rgba(255, 215, 160, 0.8); /* subtle glow effect */
 }
+
+
+.nav-left {
+  display: flex;
+  gap: 25px; /* space between links */
+}
+
+.nav-right {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #f0f0f0;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-btn {
+  text-decoration: none;
+  background: #ffcc70;
+  color: #1a1a1a;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-weight: bold;
+  /* transition: background 0.3s, transform 0.2s; */
+}
+
+.nav-btn:hover {
+  background: #ffaa00;
+  transform: scale(1.05);
+}
+
+/* Search input inside navbar */
+.navbar-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  /* margin-left: auto; push search to right side */
+}
+
+.navbar-search input {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background-color: rgba(20, 10, 10, 0.1);
+  color: #fff;
+  outline: none;
+  transition: all 0.3s ease;
+  width: 400px;
+}
+
+.navbar-search input::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+.navbar-search input:focus {
+  /* width: 280px; expands on focus */
+  scale: 1.08;
+  background-color: rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.6);
+}
+
+/* optional search icon */
+.navbar-search .icon {
+  position: absolute;
+  right: 12px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+  pointer-events: none;
+}
+
+/* === Full-page search overlay (dark + blur) === */
+.search-overlay {
+  position: fixed;
+  inset: 0;                       /* cover whole viewport */
+  z-index: 9999;                  /* above nav & page content */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 72px;              /* push content below navbar */
+  background: rgba(0,0,0,0.45);   /* dark tint */
+  backdrop-filter: blur(6px) saturate(120%); /* blur + subtle pop */
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  animation: overlay-fade 200ms ease forwards;
+}
+
+/* overlay enter animation */
+@keyframes overlay-fade {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* center container that holds the search box & genres */
+.search-panel {
+  width: min(92%, 920px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  pointer-events: auto; /* allow clicks */
+}
+
+/* Search input area that visually matches your navbar look */
+.search-panel .search-box {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(20,10,10,0.12);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 8px;
+  border-radius: 28px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  backdrop-filter: blur(2px);
+}
+
+/* Use your navbar-search input styles but scoped to overlay */
+.search-panel .search-box input.navbar-search.input,
+.search-panel .search-box input {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 1rem;
+  color: #fff;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.search-panel .search-box input::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+/* overlay search button (small round) */
+.search-panel .search-box .btn {
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: #ffcc70;   /* matches nav-btn */
+  color: #1a1a1a;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, 0.15s ease;
+}
+.search-panel .search-box .btn:hover { transform: scale(1.04); background: #ffaa00; }
+
+/* Genres list (chips) */
+.search-panel .genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+  padding: 6px 8px;
+  max-height: 90%;
+  overflow-y: auto; /* allows scrolling if many genres */
+}
+
+/* Individual genre chip — visually consistent with navbar color palette */
+.search-panel .genres button {
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  color: #ffd7a0;               /* accent color from nav-link hover */
+  border: 1px solid rgba(255,215,160,0.06);
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.18s ease, transform 0.12s ease;
+}
+.search-panel .genres button:hover {
+  background: rgba(255,215,160,0.14);
+  transform: translateY(-2px);
+}
+
+/* Small helper: clicking outside overlay content should still allow overlay to close.
+   Make your overlay background element use pointer-events to capture clicks if needed. */
+
+/* Optional close icon/button top-right (if you add it) */
+.search-overlay .close-btn {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+/* small responsive tweaks */
+@media (max-width: 640px) {
+  .search-panel { padding: 0 12px; }
+  .search-panel .search-box { padding: 6px; border-radius: 22px; }
+  .search-panel .genres button { padding: 6px 10px; font-size: 0.9rem; }
+}
