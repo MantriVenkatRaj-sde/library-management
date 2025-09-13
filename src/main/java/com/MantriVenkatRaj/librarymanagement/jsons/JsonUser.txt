@@ -1,0 +1,8 @@
+{
+  "username": "Annie",
+  "password": "password123",
+  "email": "annie@gmail.com",
+  "phone": "9678676767",
+  "age": 21,
+  "address": "Bangalore, India"
+}
