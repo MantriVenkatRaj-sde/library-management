@@ -1,0 +1,8 @@
+{
+  "title": "Heartstrings and Horizons",
+  "author": "Sanya Kapoor",
+  "description": "A deeply moving romance that explores the journey of two souls finding each other against all odds, revealing the complexities of love, hope, and the human spirit through life's trials and triumphs.",
+  "publicationYear": 2022,
+  "isbn": "978-8899001122",
+  "genres": ["Romance", "Fiction"]
+}
