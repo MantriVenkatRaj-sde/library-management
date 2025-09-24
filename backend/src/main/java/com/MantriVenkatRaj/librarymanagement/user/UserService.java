@@ -1,5 +1,6 @@
 package com.MantriVenkatRaj.librarymanagement.user;
 
+import com.MantriVenkatRaj.librarymanagement.Exception.UserNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,5 +28,7 @@ public class UserService {
                 .map(this::convertToDTO)
                 .toList(); // Java 16+ (or use Collectors.toList() for older Java)
     }
-
+    public User findByUsername(String username){
+        return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+    }
 }

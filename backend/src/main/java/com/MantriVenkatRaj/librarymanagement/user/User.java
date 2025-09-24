@@ -1,5 +1,6 @@
 package com.MantriVenkatRaj.librarymanagement.user;
 
+import com.MantriVenkatRaj.librarymanagement.bookclub.entities.ClubMember;
 import com.MantriVenkatRaj.librarymanagement.rating.Rating;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -9,7 +10,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -51,6 +54,20 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant lastLogin;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ClubMember> memberships = new HashSet<>();
+
+    // helper
+    public void addMembership(ClubMember m) {
+        memberships.add(m);
+        m.setUser(this);
+    }
+
+    public void removeMembership(ClubMember m) {
+        memberships.remove(m);
+        m.setUser(null);
+    }
 
     public enum Role {
         USER,
