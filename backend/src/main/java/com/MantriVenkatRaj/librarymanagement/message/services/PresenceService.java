@@ -13,18 +13,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PresenceService {
 
     // userId -> activeClubId (nullable)
-    private final Map<Long, Long> activeClubByUser = new ConcurrentHashMap<>();
+    private final Map<String,String> activeClubByUser = new ConcurrentHashMap<>();
 
-    public void setActiveClub(Long userId, Long clubId) {
-        if (clubId == null) activeClubByUser.remove(userId);
-        else activeClubByUser.put(userId, clubId);
+    public void setActiveClub(String username, String clubname) {
+        if (clubname == null) activeClubByUser.remove(username);
+        else activeClubByUser.put(username, clubname);
     }
 
-    public Long getActiveClub(Long userId) {
-        return activeClubByUser.get(userId);
+    public String getActiveClub(String username) {
+        return activeClubByUser.get(username);
     }
 
-    public void removeUser(Long userId) {
-        activeClubByUser.remove(userId);
+    public void removeUser(String username) {
+        activeClubByUser.remove(username);
     }
 }

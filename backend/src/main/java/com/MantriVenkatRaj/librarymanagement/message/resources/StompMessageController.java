@@ -4,6 +4,7 @@ import com.MantriVenkatRaj.librarymanagement.message.requests.MessageCreateReque
 import com.MantriVenkatRaj.librarymanagement.message.services.MessageService;
 import com.MantriVenkatRaj.librarymanagement.message.services.PresenceService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,7 @@ public class StompMessageController {
 
     // Destination to send this message /app/chat.send
     @MessageMapping("/chat.send")
-    public void handleStompSend(MessageCreateRequest req) {
+    public void handleStompSend(@Payload MessageCreateRequest req) {
         // Persist & broadcast (ChatService handles conversion to DTO and broadcasting)
         messageService.postMessage(req.getClubname(), req.getSendername(), req.getContent());
     }
@@ -34,10 +35,10 @@ public class StompMessageController {
     @MessageMapping("/presence.active")
     public void handlePresence(MessageCreateRequest.PresenceRequest presence) {
         if (presence == null) return;
-        if (presence.getClubId() == null) {
-            presenceService.setActiveClub(presence.getUserId(), null);
+        if (presence.getClubname() == null) {
+            presenceService.setActiveClub(presence.getUsername(), null);
         } else {
-            presenceService.setActiveClub(presence.getUserId(), presence.getClubId());
+            presenceService.setActiveClub(presence.getUsername(), presence.getClubname());
         }
     }
 }

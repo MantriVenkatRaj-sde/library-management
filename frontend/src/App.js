@@ -10,6 +10,7 @@ import AuthProvider, { useAuth }  from './Authentication/AuthContext';
 import { BookComponent } from './Components/BookComponent';
 import { SearchByTagComponent } from './Components/SearchByTagComponent';
 import { SearchComponent } from './Components/SearchComponent';
+import { Chat } from './Components/ClubChat';
 
 
 function App() {
@@ -36,7 +37,8 @@ function App() {
             <Route path="/home" element={<AuthenticatePath><HomeComponent/></AuthenticatePath>} />
             <Route path="/home/book/:isbn" element={<AuthenticatePath><BookComponent/></AuthenticatePath>} />
             <Route path="/:genre/books" element={<AuthenticatePath><SearchByTagComponent/></AuthenticatePath>} />
-             <Route path="/search/:q" element={<AuthenticatePath><SearchComponent/></AuthenticatePath>} />
+            <Route path="/clubs/:club/chat" element={<AuthenticatePath><Chat/></AuthenticatePath>} />
+            <Route path="/search/:q" element={<AuthenticatePath><SearchComponent/></AuthenticatePath>} />
             {/* Later you can add more pages like Home, Library, Profile */}
           </Routes>
         </div>

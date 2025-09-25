@@ -1,5 +1,6 @@
 package com.MantriVenkatRaj.librarymanagement.message.services;
 
+import com.MantriVenkatRaj.librarymanagement.Exception.UserNotFoundException;
 import com.MantriVenkatRaj.librarymanagement.bookclub.entities.ClubMember;
 import com.MantriVenkatRaj.librarymanagement.bookclub.repositories.ClubMemberRepository;
 import com.MantriVenkatRaj.librarymanagement.message.entities.Message;
@@ -26,8 +27,8 @@ public class MessageReadService {
 
     // Return unread counts { clubId -> unreadCount } for the user.
     @Transactional
-    public Map<Long, Long> getUnreadCountsForUser(Long userId) {
-        List<ClubMember> memberships = clubMemberRepo.findByUser_Id(userId);
+    public Map<Long, Long> getUnreadCountsForUser(String username) {
+        List<ClubMember> memberships = clubMemberRepo.findByUser_Username(username).orElseThrow(UserNotFoundException::new);
         Map<Long, Long> result = new HashMap<>();
         for (ClubMember m : memberships) {
             Long lastRead = m.getLastReadMessageId() == null ? 0L : m.getLastReadMessageId();

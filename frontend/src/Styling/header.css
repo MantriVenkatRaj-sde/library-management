@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 70px; /* 👈 fixed height */
+  height: 50px; /* 👈 fixed height */
   z-index: 1000;
   display: flex;
   justify-content: space-between;

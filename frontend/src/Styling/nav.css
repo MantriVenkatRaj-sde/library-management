@@ -48,11 +48,12 @@
   position: relative;
   display: flex;
   align-items: center;
+  
   /* margin-left: auto; push search to right side */
 }
 
 .navbar-search input {
-  padding: 8px 14px;
+  padding: 8px 7px;
   border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.3);
   background-color: rgba(20, 10, 10, 0.1);

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@stomp/stompjs": "^7.2.0",
     "@tanstack/react-query": "^5.87.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.8.0",
@@ -15,8 +16,11 @@
     "lucide-react": "^0.542.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-icons": "^5.5.0",
     "react-router-dom": "^7.8.2",
     "react-scripts": "5.0.1",
+    "react-toastify": "^11.0.5",
+    "sockjs-client": "^1.6.1",
     "web-vitals": "^2.1.4",
     "yup": "^1.7.0"
   },

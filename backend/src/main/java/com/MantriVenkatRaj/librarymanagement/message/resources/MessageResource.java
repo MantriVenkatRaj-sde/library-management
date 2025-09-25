@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/chat")
+@RequestMapping("/chat")
 public class MessageResource {
 
     private final MessageService messageService;
@@ -50,9 +50,9 @@ public class MessageResource {
      * GET /api/chat/members/{userId}/unread
      * returns: { clubId -> unreadCount }
      */
-    @GetMapping("/members/{userId}/unread")
-    public ResponseEntity<Map<Long, Long>> getUnreadCounts(@PathVariable Long userId) {
-        Map<Long, Long> counts = messageReadService.getUnreadCountsForUser(userId);
+    @GetMapping("/members/{username}/unread")
+    public ResponseEntity<Map<Long, Long>> getUnreadCounts(@PathVariable String username) {
+        Map<Long, Long> counts = messageReadService.getUnreadCountsForUser(username);
         return ResponseEntity.ok(counts);
     }
 
@@ -75,7 +75,7 @@ public class MessageResource {
     public ResponseEntity<Message> postMessage(@RequestBody MessageCreateRequest req) {
         Message saved = messageService.postMessage(req.getClubname(), req.getSendername(), req.getContent());
         // Return 201 with location if you want:
-        return ResponseEntity.created(URI.create("/api/chat/clubs/" + saved.getClub().getName() + "/messages"))
+        return ResponseEntity.created(URI.create("/chat/clubs/" + saved.getClub().getName() + "/messages"))
                 .body(saved);
     }
 }

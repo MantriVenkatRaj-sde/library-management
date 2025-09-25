@@ -6,6 +6,7 @@ import "../Styling/nav.css";
 import { useAuth } from "../Authentication/AuthContext";
 import { useGenres } from "../Contexts/GenreContext";
 import { findByAuthor, findByBookTitle } from "../API/bookAPI";
+import { useChatContext } from "../context/ChatContext";
 
 export default function Header() {
   const auth = useAuth();
@@ -83,12 +84,20 @@ export default function Header() {
     }
   };
 
+  const chat=useChatContext();
+  const handleLogOut = () => {
+    chat.forgetUser();
+    auth.logout();
+    navigate("/");
+  }
+  const club = "Book Lovers";
   return (
     <>
-      <header className="header">
+      <header className="header mb-3">
         <div className="nav-left">
           {auth.isAuthenticated && <Link to="/home" className="nav-link">Home</Link>}
           {auth.isAuthenticated && <Link to="/profile" className="nav-link">Profile</Link>}
+          {auth.isAuthenticated && <Link to={`/clubs/${club}/chat`} className="nav-link">Chat</Link>}
         </div>
 
         {/* Navbar search (keeps your classes) */}
@@ -105,6 +114,8 @@ export default function Header() {
 
         <div className="nav-right">
           {!auth.isAuthenticated && <Link to="/login" className="nav-btn">Sign In</Link>}
+          {/* {auth.isAuthenticated && <Link to="/" className="nav-link">Logout</Link>} */}
+           {auth.isAuthenticated &&  <button  onClick={handleLogOut} className="nav-btn">Logout</button>}
         </div>
       </header>
 

@@ -8,6 +8,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GenresProvider } from './Contexts/GenreContext';
+import { ChatProvider } from './context/ChatContext';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -17,7 +18,9 @@ root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <GenresProvider>
-        <App />
+        <ChatProvider>
+          <App />
+        </ChatProvider>
       </GenresProvider>
     </QueryClientProvider>
   </React.StrictMode>

@@ -16,15 +16,11 @@ public class MessageCreateRequest {
      * Small embedded class used for presence events where we need userId + clubId.
      * Re-uses the request shape for simplicity.
      */
+    @Getter
+    @Setter
     public static class PresenceRequest {
-        private Long userId;
-        private Long clubId;
-
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
-
-        public Long getClubId() { return clubId; }
-        public void setClubId(Long clubId) { this.clubId = clubId; }
+        private String username;
+        private String clubname;
     }
 
 
