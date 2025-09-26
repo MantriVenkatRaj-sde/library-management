@@ -15,7 +15,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 // create one client for the entire app
 const queryClient = new QueryClient();
 root.render(
-  <React.StrictMode>
+  
     <QueryClientProvider client={queryClient}>
       <GenresProvider>
         <ChatProvider>
@@ -23,7 +23,7 @@ root.render(
         </ChatProvider>
       </GenresProvider>
     </QueryClientProvider>
-  </React.StrictMode>
+
 );
 
 // If you want to start measuring performance in your app, pass a function

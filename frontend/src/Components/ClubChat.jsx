@@ -9,6 +9,8 @@ import SockJS from "sockjs-client";
 import { getClubMessagesSinceApi, postMessageViaRest } from "../API/MessagesAPI";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../Authentication/AuthContext";
+import "../Styling/Background.css";
+import "../Styling/Chat.css";
 
 export function Chat() {
   const { userName, clubName, connected, setConnected, setClubName, setUserName } = useChatContext();
@@ -19,18 +21,18 @@ export function Chat() {
   const subscriptionRef = useRef(null);
   const navigate = useNavigate();
   const auth = useAuth();
-  const { club } = useParams();
+  const { clubid,clubname } = useParams();
 
   // initialize clubName and userName from route/auth if missing
   useEffect(() => {
-    if (club && !clubName) {
-      setClubName(decodeURIComponent(club));
+    if (clubid && clubname && !clubName) {
+      setClubName(decodeURIComponent(clubname));
     }
     if (!userName && auth && auth.user) {
       setUserName(auth.user);
     }
-    console.log("Chat mounted with club param:", club, "clubName in context:", clubName, "userName:", userName);
-  }, [club, clubName, setClubName, userName, setUserName, auth]);
+    console.log("Chat mounted with club param:", clubname, "clubName in context:", clubName, "userName:", userName,"clubId:",clubid);
+  }, [clubname,clubid, clubName, setClubName, userName, setUserName, auth]);
 
   // scroll to bottom on new messages
   useEffect(() => {
@@ -84,8 +86,7 @@ export function Chat() {
   // connect STOMP and subscribe
   useEffect(() => {
     // ensure there's at least a default club
-    if (!clubName) setClubName("Book Lovers");
-
+    if (!clubName) return;
     // Use auth.token exactly as you provided ("Bearer <raw>") — no reformatting
     const connectHeaders = auth && auth.token ? { Authorization: auth.token } : {};
     console.log("[STOMP] will connect with headers:", connectHeaders);
@@ -102,7 +103,7 @@ export function Chat() {
       onConnect: (frame) => {
         console.log("[STOMP] onConnect frame:", frame);
         setConnected && setConnected(true);
-        toast.success("Connected to chat server");
+        
 
         // subscribe to the server's broadcast topic
         try {
@@ -141,7 +142,7 @@ export function Chat() {
       onWebSocketOpen: (evt) => console.log("[STOMP] websocket open", evt),
       onWebSocketError: (evt) => console.error("[STOMP] websocket error", evt),
       onWebSocketClose: (evt) => { console.warn("[STOMP] websocket close", evt); setConnected && setConnected(false); },
-      onDisconnect: () => { setConnected && setConnected(false); toast.info("Disconnected"); }
+      onDisconnect: () => { setConnected && setConnected(false); }
     });
 
     client.activate();
@@ -206,9 +207,50 @@ export function Chat() {
 
   return (
     <div className="d-flex flex-column bg-dark vh-100 w-100 text-light mt-5">
+      <header
+        className="d-flex align-items-center p-3 bg-dark text-light chat-header"
+        style={{
+          position: "sticky",
+          top: "50px",
+          zIndex: 1000,
+          width: "100%",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        {/* Left: Back button */}
+        <div className="d-flex align-items-center" style={{ position: "absolute", left: "15px" }}>
+          <button
+            className="btn btn-secondary me-2"
+            type="button"
+            onClick={handleBack}
+            style={{ backgroundColor: "Red", transition: "transform 0.2s" }}
+            title="Back"
+            onMouseEnter={(e) => (
+              (e.currentTarget.style.transform = "scale(1.2)"),
+              (e.currentTarget.style.boxShadow = "0 0 10px #198754")
+            )}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            <AiOutlineArrowLeft size={20} />
+          </button>
+        </div>
+
+        {/* Center: Club name */}
+        <div
+          className="text-light text-center w-100 fw-bold fs-3"
+          onClick={()=> navigate(`/clubs/bookclub/${clubid}/${clubName}`)}
+        >
+            <div 
+            style={{ cursor: "pointer" }}
+            title={clubName} >
+              {clubName}
+            </div>
+        </div>
+      </header>
+
       <div
-        className="container bg-dark rounded border mt-5 overflow-auto p-1 fixed"
-        style={{ minHeight: "70vh", maxHeight: "80vh", marginBottom: "60px" }}
+        className="container bg-dark rounded overflow-auto p-10 fixed component"
+        style={{ minHeight: "70vh", maxHeight: "80vh", marginBottom: "60px",width:"100%"}}
         aria-live="polite"
         ref={chatBoxRef}
       >
@@ -235,9 +277,7 @@ export function Chat() {
         onSubmit={(e) => { e.preventDefault(); sendMessage(); }}
         className="d-flex justify-content-center align-items-center fixed-bottom p-3 bg-dark "
       >
-        <button className="btn btn-secondary me-2" type="button" onClick={handleBack}>
-          <AiOutlineArrowLeft size={20} />
-        </button>
+        
         <div style={{ flex: 1 }}>
           <input
             value={input}

@@ -11,6 +11,10 @@ import { BookComponent } from './Components/BookComponent';
 import { SearchByTagComponent } from './Components/SearchByTagComponent';
 import { SearchComponent } from './Components/SearchComponent';
 import { Chat } from './Components/ClubChat';
+import { BookClub } from './Components/BookClub';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 
 function App() {
@@ -36,11 +40,23 @@ function App() {
             <Route path="/signup" element={<SignUpComponent />} />
             <Route path="/home" element={<AuthenticatePath><HomeComponent/></AuthenticatePath>} />
             <Route path="/home/book/:isbn" element={<AuthenticatePath><BookComponent/></AuthenticatePath>} />
+            <Route path="/clubs/bookclub/:clubId/:clubname" element={<AuthenticatePath><BookClub/></AuthenticatePath>} />
             <Route path="/:genre/books" element={<AuthenticatePath><SearchByTagComponent/></AuthenticatePath>} />
-            <Route path="/clubs/:club/chat" element={<AuthenticatePath><Chat/></AuthenticatePath>} />
+            <Route path="/clubs/:clubid/:clubname/chat" element={<AuthenticatePath><Chat/></AuthenticatePath>} />
             <Route path="/search/:q" element={<AuthenticatePath><SearchComponent/></AuthenticatePath>} />
             {/* Later you can add more pages like Home, Library, Profile */}
           </Routes>
+           <ToastContainer
+            position="top-center"   
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+          />
         </div>
       </Router>
     </AuthProvider>

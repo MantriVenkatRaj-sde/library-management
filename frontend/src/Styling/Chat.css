@@ -1,0 +1,19 @@
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.chat-header {
+  background: linear-gradient(135deg, #311449, #1e1829, #1a0848);
+  background-size: 400% 400%;
+  padding: 10px 20px;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: bold;
+  animation: gradientShift 8s ease infinite;
+}
+
+.title:hover {
+box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}

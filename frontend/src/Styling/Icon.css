@@ -1,0 +1,38 @@
+/* header layout */
+.club-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;              /* space between logo and title */
+  justify-content: center;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+/* circular logo */
+.club-logo {
+  border-radius: 50%;     /* makes it circular */
+  border: 3px solid rgba(255,255,255,0.12);
+  background-color: rgba(255,255,255,0.06); 
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  cursor: default;
+ 
+}
+
+/* hover/active effect */
+.club-logo:hover {
+  transform: scale(1.06);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.55);
+}
+
+/* responsive size (smaller on phones) */
+@media (max-width: 576px) {
+  .club-logo {
+    width: 64px;
+    height: 64px;
+    padding: 6px;
+  }
+  .club-header h1 {
+    font-size: 1.6rem;
+  }
+}

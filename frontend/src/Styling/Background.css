@@ -1,0 +1,15 @@
+.component {
+  background: linear-gradient(135deg, #000, #312e2e, #302c2c);
+  background-size: 400% 400%;
+  padding-top: 90px; /* header height + some spacing */
+  min-height: 100vh;
+  animation: gradientShift 8s ease infinite;
+
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+

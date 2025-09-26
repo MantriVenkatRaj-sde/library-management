@@ -3,21 +3,24 @@ import { apiClient } from "../API/apiClient"
 import { findBookByISBN, findBooksByGenre } from "../API/bookAPI"
 import { useEffect, useState } from "react";
 import "../Styling/bookPageStyle.css";
+import "../Styling/Background.css";
 import libraryBg from "../Images/BookBG.jpeg";
 import StarRating from "./StartRating";
+import { recommendClubsApi } from "../API/BookClubAPI";
 
 export function BookComponent() {
   const { isbn } = useParams();
   const [bookDetails, setBookDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [bookClubs, setBookClubs] = useState(null);
+  const [loading1, setLoading1] = useState(true);
+  const [loading2, setLoading2] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isbn) return;
 
     let mounted = true;
-    setLoading(true);
-
+    setLoading1(true);
     findBookByISBN(isbn)
       .then(response => {
         if (mounted) {
@@ -30,13 +33,36 @@ export function BookComponent() {
         if (mounted) setBookDetails(null);
       })
       .finally(() => {
-        if (mounted) setLoading(false);
+        if (mounted) setLoading1(false);
       });
 
     return () => { mounted = false; };
   }, [isbn]);
 
-  if (loading) return <div>Loading...</div>;
+  useEffect(()=>{
+    if(!isbn) return;
+    let mounted = true;
+    setLoading2(true);
+
+    recommendClubsApi(isbn)
+      .then(response => {
+        if (mounted) {
+          setBookClubs(response.data);
+          console.log("Related Book Details : ",response.data);
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        if (mounted) setBookClubs(null);
+      })
+      .finally(() => {
+        if (mounted) setLoading2(false);
+      });
+
+  },[isbn]);
+
+
+  if (loading1) return <div>Loading...</div>;
   if (!bookDetails) return <div>Book not found</div>; // ✅ rely on API result
 
   function handleTagClick(genre) {
@@ -45,9 +71,9 @@ export function BookComponent() {
 
   return (
     <div
-      className="bookcontainer"
+      className="component bookcontainer overflow-auto"
       style={{
-        backgroundImage: `url(${libraryBg})`,
+        // backgroundImage: `url(${libraryBg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -132,6 +158,40 @@ export function BookComponent() {
           <span className="text-info">{bookDetails.likePercent}</span>
         </div>
       </div>
+
+    <div className="my-container ">
+      <h2 className="text-light fs-3 fw-bold mb-5">Related Book Clubs</h2>
+      <span style={{
+                  width: "100%", 
+                  cursor: "pointer",
+                }}>
+        {loading2 ? (<div>Loading...</div>) : 
+        (
+          <div className="text-info fs-10 ">
+            {bookClubs && bookClubs.length ? (
+              bookClubs.map((club,i) => (
+           <div
+            key={club.name}
+            className="bg-dark border border-2 border-info rounded fs-5 mt-2 py-2 px-3 d-flex justify-content-between align-items-center"
+            style={{
+              width: "calc(100% - 1px)",
+               transition: "transform 0.2s" 
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            onClick={() => navigate(`/clubs/bookclub/${club.id}/${club.name}`)}
+          >
+            <div>{i+1}.  {club.name}</div>
+            <div className="text-success">{club.visibility}</div>
+          </div>))
+            ) : (
+              <div>No related Book Clubs found</div>
+            )}
+          </div>
+        )}
+      </span>
+    </div>
+
     </div>
   );
 }

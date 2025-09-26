@@ -97,7 +97,7 @@ export default function Header() {
         <div className="nav-left">
           {auth.isAuthenticated && <Link to="/home" className="nav-link">Home</Link>}
           {auth.isAuthenticated && <Link to="/profile" className="nav-link">Profile</Link>}
-          {auth.isAuthenticated && <Link to={`/clubs/${club}/chat`} className="nav-link">Chat</Link>}
+          {auth.isAuthenticated && <Link to={`/clubs`} className="nav-link">Clubs</Link>}
         </div>
 
         {/* Navbar search (keeps your classes) */}
