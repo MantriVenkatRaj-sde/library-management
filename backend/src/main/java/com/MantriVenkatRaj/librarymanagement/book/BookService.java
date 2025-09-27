@@ -10,6 +10,8 @@ import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO;
 import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookMapperMarkedForScrap;
 import com.MantriVenkatRaj.librarymanagement.genre.Genre;
 import com.MantriVenkatRaj.librarymanagement.genre.GenreRepository;
+import com.MantriVenkatRaj.librarymanagement.rating.Rating;
+import com.MantriVenkatRaj.librarymanagement.rating.dto.BookRatingDTO;
 import jakarta.validation.Valid;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileReader;
 import java.io.Reader;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -236,6 +239,39 @@ public class BookService implements CommandLineRunner {
         return new ArrayList<>(merged.values());
     }
 
+    public List<BookRatingDTO> getRatings(String isbn) {
+        Book book=bookRepository.findByIsbn(isbn).orElseThrow(BookNotFoundException::new);
+        return book.getRatings().stream().map(rating -> {
+            var user=rating.getUser();
+            return BookRatingDTO.builder()
+                    .id(rating.getId())
+                    .bookId(rating.getBookId())
+                    .bookIsbn(book.getIsbn())
+                    .bookTitle(book.getTitle())
+                    .rating(rating.getRating())
+                    .review(rating.getReview())
+                    .username(user.getUsername())
+                    .userId(user.getId())
+                    .updatedAt(rating.getUpdatedAt())
+                    .createdAt(rating.getCreatedAt())
+                    .build();
+            }
+        ).toList();
+    }
+
+//    private Long id;
+//
+//    private Integer rating;
+//    private String review;
+//    private Instant createdAt;
+//    private Instant updatedAt;
+//
+//    private Long userId;
+//    private String username;
+//    private Long bookId;
+//    private String bookIsbn;
+//    private String bookTitle;
+}
 
 //    public List<Book> findByAuthorContainingIgnoreCase(String author) {
 //        return bookRepository.findByAuthorContainingIgnoreCase(author);
@@ -248,4 +284,4 @@ public class BookService implements CommandLineRunner {
 //    public List<Book> findByGenreName(String genre) {
 //        return bookRepository.findByGenreName(genre);
 //    }
-}
+

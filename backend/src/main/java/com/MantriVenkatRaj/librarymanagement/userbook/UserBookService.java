@@ -108,7 +108,7 @@ public class UserBookService {
         user.getReadersList().add(userBook.getBook());
 
     }
-
+    @Transactional
     public void abandonAndDelete(String username, String isbn) {
         User user=userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
         Book book=bookRepository.findByIsbn(isbn).orElseThrow(BookNotFoundException::new);

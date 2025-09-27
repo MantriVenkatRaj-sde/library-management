@@ -65,7 +65,7 @@ public class Book {
 
     // One book → many ratings
     @Builder.Default
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<Rating> ratings = new ArrayList<>();
 
     // Inverse side: owning side must be in BookOverallRating with @JoinColumn(book_id)

@@ -37,10 +37,10 @@ public class UserBookResource {
         return ResponseEntity.ok("Book was added to User's Read List");
     }
     @PutMapping("/users/{username}/books/isbn/{isbn}/{readStatus}")
-    public ResponseEntity<Object> updateBookReadingStatus(@PathVariable String username, @PathVariable String isbn, @PathVariable String userBookStatus){
+    public ResponseEntity<Object> updateBookReadingStatus(@PathVariable String username, @PathVariable String isbn, @PathVariable String readStatus){
         UserBook.ReadStatus status;
         try {
-            status = UserBook.ReadStatus.fromString(userBookStatus); // helper shown below
+            status = UserBook.ReadStatus.fromString(readStatus); // helper shown below
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().build();
         }
@@ -51,7 +51,7 @@ public class UserBookResource {
             return ResponseEntity.noContent().build(); // 204
         } else {
             // normal status update (Reading / Completed / Readlist etc.)
-            userBookService.updateBookReadingStatus(username, isbn, userBookStatus);
+            userBookService.updateBookReadingStatus(username, isbn, readStatus);
             return ResponseEntity.ok().build(); // 200
         }
     }

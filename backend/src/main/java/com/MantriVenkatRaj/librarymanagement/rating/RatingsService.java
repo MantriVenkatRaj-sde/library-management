@@ -152,8 +152,8 @@ public class RatingsService {
 
     }
     @Transactional
-    public void DeleteTheRatingOfTheBook(String isbn, String username, RatingRequest ratingRequest) {
-        Rating existing=ratingsRepository.findByUser_UsernameAndBook_Isbn(username,isbn)
+    public void DeleteTheRatingOfTheBook(String isbn, String username, Long  ratingId) {
+        Rating existing=ratingsRepository.findByIdAndUser_UsernameAndBook_Isbn(ratingId,username,isbn)
                 .orElseThrow(NoExistingRatingFoundException::new);
 
         BookOverallRating overall=bookOverallRatingRepository.findByBookIsbnForUpdate(isbn)
@@ -170,7 +170,7 @@ public class RatingsService {
             overall.setRatingCount(newCount);
             overall.setAvgRating(newAvg);
         }
-
+        ratingsRepository.delete(existing);
         bookOverallRatingRepository.save(overall);
     }
 }

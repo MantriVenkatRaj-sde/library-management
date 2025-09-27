@@ -64,7 +64,7 @@ public class User {
 
     // Ratings given by the user
     @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Rating> ratings = new ArrayList<>();
 
     @CreationTimestamp
@@ -93,6 +93,16 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "book_id")
     )
     private Set<Book> readersList = new HashSet<>();
+
+    //User's Liked Books
+    @Builder.Default
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_liked_books",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id")
+    )
+    private Set<Book> readersLikedBooks = new HashSet<>();
 
     // --- Helper methods ---
 

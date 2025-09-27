@@ -3,7 +3,10 @@ package com.MantriVenkatRaj.librarymanagement.book;
 import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookComponentDTO;
 import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookDTOMarkedForScrap;
 import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO;
+import com.MantriVenkatRaj.librarymanagement.rating.Rating;
+import com.MantriVenkatRaj.librarymanagement.rating.dto.BookRatingDTO;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,5 +56,10 @@ public class BookResource {
     @GetMapping("/books/search/{q}")
     public List<BookListDTO> searchQuery(@PathVariable String q){
         return bookService.searchQuery(q);
+    }
+
+    @GetMapping("/book/{isbn}/ratings")
+    public ResponseEntity<List<BookRatingDTO>> getBookRatings(@PathVariable String isbn){
+        return ResponseEntity.ok(bookService.getRatings(isbn));
     }
 }

@@ -3,6 +3,7 @@ package com.MantriVenkatRaj.librarymanagement.rating;
 import com.MantriVenkatRaj.librarymanagement.book.BookService;
 import com.MantriVenkatRaj.librarymanagement.rating.dto.BookRatingDTO;
 import com.MantriVenkatRaj.librarymanagement.rating.dto.RatingRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,20 +45,18 @@ public class RatingsResource {
     }
 
     @PutMapping("users/{username}/books/{isbn}/update-rating")
-    public String UpdateTheRatingOfTheBook(@PathVariable String isbn,
-                              @PathVariable String username,
-                              @RequestBody RatingRequest ratingRequest){
+    public ResponseEntity<String> UpdateTheRatingOfTheBook(@PathVariable String isbn,
+                                                           @PathVariable String username,
+                                                           @RequestBody RatingRequest ratingRequest){
         ratingsService.UpdateTheRatingOfTheBook(isbn,username,ratingRequest);
-        return "Rating updated";
+        return ResponseEntity.ok("Rating updated");
     }
 
-    @DeleteMapping("users/{username}/books/{isbn}/delete-rating")
-    public String DeleteTheRatingOfTheBook(@PathVariable String isbn,
-                                           @PathVariable String username,
-                                           @RequestBody RatingRequest ratingRequest){
+    @DeleteMapping("users/{username}/{isbn}/ratings/{ratingId}/delete")
+    public ResponseEntity<String> DeleteTheRatingOfTheBook(@PathVariable String isbn,@PathVariable String username,@PathVariable Long ratingId){
 
-        ratingsService.DeleteTheRatingOfTheBook(isbn,username,ratingRequest);
-        return "Rating Deleted";
+        ratingsService.DeleteTheRatingOfTheBook(isbn,username,ratingId);
+        return ResponseEntity.ok("Rating Deleted");
     }
 
 }
