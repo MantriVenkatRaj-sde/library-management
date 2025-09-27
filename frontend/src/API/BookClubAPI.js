@@ -28,6 +28,3 @@ export function joinClubApi(clubname,username) {
   return apiClient.post(`/bookclubs/${clubname}/join/${username}`);
 }
 
-export function getBookRatings(isbn){
-  return apiClient.get(`/book/${encodeURIComponent(isbn)}/ratings`)
-}

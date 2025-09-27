@@ -12,6 +12,7 @@ export default function AuthProvider({children}){
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
     const [token,setToken]=useState(null);
+    const [userDetails,setUserDetails]=useState();
     const navigate=useNavigate();
     async function signup(user) {
     try {
@@ -38,6 +39,7 @@ export default function AuthProvider({children}){
         setUser(username);
         const jwtToken = "Bearer ".concat(response.data.token);
         setToken(jwtToken);
+        
 
         // ✅ request interceptor (attach token)
         apiClient.interceptors.request.use((config) => {

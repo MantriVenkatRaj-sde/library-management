@@ -52,8 +52,8 @@ export function BookRow({ title, books = [] }) {
                 alt={book.title}
                 placeholder={PlaceHolder}
                 className="book-card-img"
-                width={140} 
-                height={200}
+                width={250} 
+                height={250}
               />
               <p className="book-card-title">{book.title}</p>
             </div>

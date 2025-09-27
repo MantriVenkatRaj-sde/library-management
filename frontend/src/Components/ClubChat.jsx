@@ -214,7 +214,7 @@ export function Chat() {
       <div
         ref={chatBoxRef}
         className="rounded overflow-auto px-2 py-2 component"
-        style={{ flex: 1, width: "100%" }}
+        style={{ flex: 1, width: "100%",overflow:"hidden"}}
         aria-live="polite"
       >
         {messages.length === 0 ? (

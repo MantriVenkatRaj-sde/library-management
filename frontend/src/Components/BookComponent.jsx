@@ -1,18 +1,16 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { apiClient } from "../API/apiClient";
-import { getBookRatings,findBookByISBN, findBooksByGenre,postReviewAndRating, UnLikeABook, LikeABook, deleteRating } from "../API/bookAPI";
+import { getBookRatings, findBookByISBN, postReviewAndRating, UnLikeABook, LikeABook, deleteRating } from "../API/bookAPI";
 import { useEffect, useRef, useState } from "react";
 import "../Styling/bookPageStyle.css";
 import "../Styling/Tile.css";
 import "../Styling/Background.css";
 import StarRating from "./StartRating";
-import {  recommendClubsApi } from "../API/BookClubAPI";
-import { FaHeart, FaRegHeart,FaPlus,FaSquare, FaCheckSquare, FaRegCircle, FaCheckCircle} from "react-icons/fa";
+import { recommendClubsApi } from "../API/BookClubAPI";
+import { FaHeart, FaRegHeart, FaPlus, FaCheckCircle, FaCommentDots } from "react-icons/fa";
 import { addToReadersList, removeFromReadersList } from "../API/ReadListAPI";
-import { FaCommentDots } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useAuth } from "../Authentication/AuthContext";
-
+import { isBookLiked, isBookSaved } from "../API/userAPI";
 
 export function BookComponent() {
   const { isbn } = useParams();
@@ -23,31 +21,27 @@ export function BookComponent() {
   const [loading3, setLoading3] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
-  const [ratings,setRatings]= useState([])
-  const [open, setOpen] = useState(false); // show/hide composer
-  const [text, setText] = useState(""); // comment text
-  const [rating,setRating]=useState(1);//Rating value
-  const [posted,setPosted]=useState(false);// If Review Posted
-  const [rated,setRated]=useState(false);// If Rated
-  const [isSubmittingRating, setIsSubmittingRating] = useState(false); // rating submit
-  const [isDeleting, setIsDeleting] = useState({}); // { [id]: true/false }
-  const auth=useAuth();
+  const [ratings, setRatings] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState("");
+  const [rating, setRating] = useState(1);
+  const [posted, setPosted] = useState(false);
+  const [rated, setRated] = useState(false);
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
+  const auth = useAuth();
   const navigate = useNavigate();
 
-  //Clamping
+  // Dragging logic
   const clamp = (v, min, max) => Math.max(min, Math.min(v, max));
-
-  //For the dragging of Comment box
-    const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [pos, setPos] = useState({ x: 0, y: 0 });
   const cardRef = useRef(null);
   const drag = useRef({ on: false, dx: 0, dy: 0 });
 
-  // place bottom-right when opened
   useEffect(() => {
     if (!open) return;
     const place = () => {
       const w = window.innerWidth, h = window.innerHeight;
-      const width = 500, height = 170; // fixed size
+      const width = 500, height = 170;
       setPos({ x: w - width - 24, y: h - height - 24 });
     };
     setTimeout(place, 0);
@@ -56,11 +50,9 @@ export function BookComponent() {
   }, [open]);
 
   const onPointerDown = (e) => {
-    // allow typing: don't start drag from the textarea
     if (e.target.tagName === "TEXTAREA") return;
     if (e.target.tagName === "BUTTON") return;
     if (e.target.tagName === "INPUT") return;
-
     e.preventDefault();
     drag.current.on = true;
     drag.current.dx = e.clientX - pos.x;
@@ -69,7 +61,7 @@ export function BookComponent() {
 
     const onMove = (ev) => {
       if (!drag.current.on) return;
-      const width = 500, height = 170; // fixed size
+      const width = 500, height = 170;
       const maxX = window.innerWidth - width - 8;
       const maxY = window.innerHeight - height - 8;
       setPos({
@@ -86,192 +78,127 @@ export function BookComponent() {
     window.addEventListener("pointerup", onUp);
   };
 
-  //API Calls
+  // Fetch book details
   useEffect(() => {
     if (!isbn) return;
-
     let mounted = true;
     setLoading1(true);
     findBookByISBN(isbn)
-      .then((response) => {
-        if (mounted) {
-          setBookDetails(response.data);
-          console.log(response.data);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        if (mounted) setBookDetails(null);
-      })
-      .finally(() => {
-        if (mounted) setLoading1(false);
-      });
-
-    return () => {
-      mounted = false;
-    };
+      .then((response) => mounted && setBookDetails(response.data))
+      .catch(() => mounted && setBookDetails(null))
+      .finally(() => mounted && setLoading1(false));
+    return () => { mounted = false; };
   }, [isbn]);
 
+  // Fetch related clubs
   useEffect(() => {
     if (!isbn) return;
     let mounted = true;
     setLoading2(true);
-
     recommendClubsApi(isbn)
-      .then((response) => {
-        if (mounted) {
-          setBookClubs(response.data);
-          console.log("Related Book Details : ", response.data);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        if (mounted) setBookClubs(null);
-      })
-      .finally(() => {
-        if (mounted) setLoading2(false);
-      });
-
-    return () => {
-      mounted = false;
-    };
+      .then((response) => mounted && setBookClubs(response.data))
+      .catch(() => mounted && setBookClubs(null))
+      .finally(() => mounted && setLoading2(false));
+    return () => { mounted = false; };
   }, [isbn]);
 
-    useEffect(()=>{
-    if(!isbn) return;
-    let mounted=true;
+  // Fetch ratings
+  useEffect(() => {
+    if (!isbn) return;
+    let mounted = true;
     setLoading3(true);
     getBookRatings(isbn)
-        .then((response) => {
-          if (mounted) {
-            setRatings(response.data);
-            console.log("Ratings and Reviews : ",response.data);
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-          if (mounted) setRatings([]);
-        })
-        .finally(() => {
-          if (mounted) setLoading3(false);
-        });
+      .then((response) => mounted && setRatings(response.data))
+      .catch(() => mounted && setRatings([]))
+      .finally(() => mounted && setLoading3(false));
+    return () => { mounted = false; };
+  }, [isbn]);
 
-      return () => {
-        mounted = false;
-      };
-  },[isbn])
+  // Persist liked & saved state
+  useEffect(() => {
+    if (!isbn || !auth.user) return;
+    isBookLiked(auth.user, isbn)
+      .then((res) => setIsLiked(res.data === true))
+      .catch((err) => console.error(err));
+    isBookSaved(auth.user, isbn)
+      .then((res) => setIsAdded(res.data === true))
+      .catch((err) => console.error(err));
+  }, [isbn, auth.user]);
 
   if (loading1) return <div>Loading...</div>;
   if (!bookDetails) return <div>Book not found</div>;
-
 
   function handleTagClick(genre) {
     navigate(`/${genre}/books`);
   }
 
   function handleLikeClick() {
-    if(isLiked){
-      UnLikeABook(auth.user,isbn)
-      .then((res)=>{
-        console.log("Success Response : ",res.data);
-        toast.info("Removed from Liked Books");
-      })
-      .catch((err)=>{
-        console.log(err);
-      });
-    }
-    else{
-      LikeABook(auth.user,isbn)
-      .then((res)=>{
-        console.log("Success Response : ",res.data);
-        toast.success("Added to Liked Books");
-      })
-       .catch((err)=>{
-        console.log(err);
-      });
-    }
-    setIsLiked((prev) => !prev); 
-  }
-
-   function handleAddClick() {
-   if(!isAdded ){ addToReadersList(auth.user,isbn)
-    .then((response)=>{
-      console.log(response?response.data:"Nothing returned");
-       setIsAdded((prev) => !prev);
-      toast.success("Book added to Reader's List");
-    })
-    .catch((error)=>{
-      console.log(error)
-    });}
-
-    else{
-      removeFromReadersList(auth.user,isbn)
-    .then((response)=>{
-      console.log(response?response.data:"Nothing returned");
-       setIsAdded((prev) => !prev);
-       console.log("Book removed from users list")
-      toast.info("Bookremoved from Reader's List");
-    })
-    .catch((error)=>{
-      console.log(error)
-    });
-
+    if (isLiked) {
+      UnLikeABook(auth.user, isbn)
+        .then(() => {
+          toast.info("Removed from Liked Books");
+          setIsLiked(false);
+        })
+        .catch((err) => console.error(err));
+    } else {
+      LikeABook(auth.user, isbn)
+        .then(() => {
+          toast.success("Added to Liked Books");
+          setIsLiked(true);
+        })
+        .catch((err) => console.error(err));
     }
   }
-  
-   const handlePost = () => {
+
+  function handleAddClick() {
+    if (isAdded) {
+      removeFromReadersList(auth.user, isbn)
+        .then(() => {
+          toast.info("Book removed from Reader's List");
+          setIsAdded(false);
+        })
+        .catch((err) => console.error(err));
+    } else {
+      addToReadersList(auth.user, isbn)
+        .then(() => {
+          toast.success("Book added to Reader's List");
+          setIsAdded(true);
+        })
+        .catch((err) => console.error(err));
+    }
+  }
+
+  const handlePost = () => {
     if (!text.trim()) return;
     setPosted(true);
-    console.log("Posted comment:", text); // later replace with API call
     setOpen(false);
   };
-  const handleRatePost=()=>{
-    if(isSubmittingRating) {
-      console.log("Rating in Progress")
-      return;
-    }
-    setIsSubmittingRating(true);
-    console.log('Rating : ',rating);
-   postReviewAndRating(auth.user, isbn, rating, text)
-  .then((response) => {
-    setRated(true);
-    console.log(response.data);
-    toast.success("Comment added!");
 
-    // fetch again
-    return getBookRatings(isbn);
-  })
-  .then((res) => {
-    setRatings(res.data); // update state with new list
-  })
-  .catch((error) => {
-    console.error(error);
-    toast.error("Failed to add comment");
-  })
-  .finally(() => {
-    setText("");
-    setRating(5);
-    setRated(false);
-    setPosted(false);
-  });
+  const handleRatePost = () => {
+    if (isSubmittingRating) return;
+    setIsSubmittingRating(true);
+    postReviewAndRating(auth.user, isbn, rating, text)
+      .then(() => getBookRatings(isbn))
+      .then((res) => setRatings(res.data))
+      .then(() => toast.success("Comment added!"))
+      .catch(() => toast.error("Failed to add comment"))
+      .finally(() => {
+        setText("");
+        setRating(5);
+        setRated(false);
+        setPosted(false);
+        setIsSubmittingRating(false);
+      });
   };
 
-
-  //Handle Delete
-const handleDelete = (ratingId) => {
-  if (!window.confirm("Are you sure you want to delete this review?")) return;
-
-  deleteRating(auth.user, isbn, ratingId)  // make sure your API expects ratingId
-    .then(() => {
-      setRatings((prev) => prev.filter((r) => r.id !== ratingId));
-      toast.success("Review deleted!");
-    })
-    .catch((err) => {
-      console.error(err);
-      toast.error("Failed to delete review.");
-    });
-};
-
+  const handleDelete = (ratingId) => {
+    deleteRating(auth.user, isbn, ratingId)
+      .then(() => {
+        setRatings((prev) => prev.filter((r) => r.id !== ratingId));
+        toast.success("Review deleted!");
+      })
+      .catch(() => toast.error("Failed to delete review."));
+  };
   return (
     <div
       className="component bookcontainer overflow-auto"
@@ -430,7 +357,7 @@ const handleDelete = (ratingId) => {
           )}
         </span>
       </div>
-          <div className="d-flex w-100 flex-column">
+          <div className="d-flex w-100 flex-column justify-content-center align-items-center">
             <div className="w-100 d-flex flex-column justify-content-center">
               <h2 className="text-light fs-2 fw-bold mb-5">Comments</h2>
             </div>
@@ -444,7 +371,7 @@ const handleDelete = (ratingId) => {
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 .map((r) => (
                   <div key={r.id} className="tile-bg border dark-bg text-light mb-3 rounded p-3 "
-                  style={{marginLeft:"50px",marginRight:"50px"}}>
+                  style={{width:"80%"}}>
                     <div className="d-flex" >
                       <span className="fw-bold text-info me-2">
                         {r.username}{" | "} {r.rating}/10

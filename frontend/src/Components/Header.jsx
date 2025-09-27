@@ -96,8 +96,10 @@ export default function Header() {
       <header className="header mb-3" 
       style={{transition:"transform 0.3s"}}>
         <div className="nav-left">
+          {auth.isAuthenticated && <Link to={`/${auth.user}/profile` } className="nav-link">Profile</Link>}
           {auth.isAuthenticated && <Link to="/home" className="nav-link">Home</Link>}
-          {auth.isAuthenticated && <Link to="/profile" className="nav-link">Profile</Link>}
+          
+          {auth.isAuthenticated && <Link to="/library" className="nav-link">Library</Link>}
           {auth.isAuthenticated && <Link to={`/clubs`} className="nav-link">Clubs</Link>}
         </div>
 
