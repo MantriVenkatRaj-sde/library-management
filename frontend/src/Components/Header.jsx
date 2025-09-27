@@ -93,7 +93,8 @@ export default function Header() {
   const club = "Book Lovers";
   return (
     <>
-      <header className="header mb-3">
+      <header className="header mb-3" 
+      style={{transition:"transform 0.3s"}}>
         <div className="nav-left">
           {auth.isAuthenticated && <Link to="/home" className="nav-link">Home</Link>}
           {auth.isAuthenticated && <Link to="/profile" className="nav-link">Profile</Link>}

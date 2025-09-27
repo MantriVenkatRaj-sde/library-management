@@ -1,5 +1,6 @@
 package com.MantriVenkatRaj.librarymanagement.message.resources;
 
+import com.MantriVenkatRaj.librarymanagement.message.dtos.MessageDTO;
 import com.MantriVenkatRaj.librarymanagement.message.entities.Message;
 import com.MantriVenkatRaj.librarymanagement.message.requests.MessageCreateRequest;
 import com.MantriVenkatRaj.librarymanagement.message.services.MessageReadService;
@@ -29,11 +30,17 @@ public class MessageResource {
      * GET /api/chat/clubs/{clubId}/messages?sinceId={sinceId}
      */
     @GetMapping("/clubs/{clubname}/latestmessages")
-    public ResponseEntity<List<Message>> getMessagesSince(
+    public ResponseEntity<List<MessageDTO>> getMessagesSince(
             @PathVariable String clubname,
             @RequestParam(required = false) Long sinceId) {
 
-        List<Message> msgs = messageReadService.fetchMessagesSince(clubname, sinceId);
+        List<MessageDTO> msgs = messageReadService.fetchMessagesSince(clubname, sinceId)
+                .stream().map(message ->MessageDTO.builder()
+                        .id(message.getId())
+                        .sendername(message.getSender().getUsername())
+                        .clubname(message.getClub().getName())
+                        .content(message.getContent())
+                        .sentAt(message.getSentAt()).build()).toList();
         return ResponseEntity.ok(msgs);
     }
     @GetMapping("/clubs/{clubname}/allmessages")

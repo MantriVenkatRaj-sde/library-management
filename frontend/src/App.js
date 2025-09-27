@@ -14,6 +14,15 @@ import { Chat } from './Components/ClubChat';
 import { BookClub } from './Components/BookClub';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ClubList } from './Components/ClubList';
+import { useLocation } from "react-router-dom";
+
+
+function HeaderSwitcher() {
+  const location = useLocation();
+  const hideHeader = location.pathname.includes("/chat"); // hide on any /chat page
+  return hideHeader ? null : <Header />;
+}
 
 
 
@@ -29,16 +38,18 @@ function App() {
   }
 
   return (
-    <AuthProvider>
-      <Router>
+     <Router>
+        <AuthProvider>
+     
         <div className="App">
-          <Header />
+          <HeaderSwitcher />
           {/* Routes define which component to show for each path */}
           <Routes>
             <Route path="/" element={<WelcomeComponent />} />
             <Route path="/login" element={<LoginComponent />} />
             <Route path="/signup" element={<SignUpComponent />} />
             <Route path="/home" element={<AuthenticatePath><HomeComponent/></AuthenticatePath>} />
+            <Route path="/clubs" element={<AuthenticatePath><ClubList/></AuthenticatePath>} />
             <Route path="/home/book/:isbn" element={<AuthenticatePath><BookComponent/></AuthenticatePath>} />
             <Route path="/clubs/bookclub/:clubId/:clubname" element={<AuthenticatePath><BookClub/></AuthenticatePath>} />
             <Route path="/:genre/books" element={<AuthenticatePath><SearchByTagComponent/></AuthenticatePath>} />
@@ -58,8 +69,9 @@ function App() {
             theme="dark"
           />
         </div>
-      </Router>
-    </AuthProvider>
+      
+      </AuthProvider>
+    </Router>
   );
 }
 

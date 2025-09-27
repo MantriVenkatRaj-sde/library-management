@@ -13,8 +13,8 @@ public interface MessageRepository extends JpaRepository<Message,Long> {
     Optional<List<Message>> findBySender_Username(String username);
     Optional<List<Message>> findByClub_Name(String clubName);
 
-    List<Message> findByClub_NameOrderByTimeStampDesc(String groupName);
-    List<Message> findTop50ByClub_NameOrderByTimeStampDesc(String groupName);
+    List<Message> findByClub_NameOrderBySentAtDesc(String groupName);
+    List<Message> findTop50ByClub_NameOrderBySentAtDesc(String groupName);
 
     List<Message> findByClub_NameAndIdGreaterThanOrderByIdAsc(String clubname, Long afterId);
 

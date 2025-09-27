@@ -7,6 +7,7 @@ import com.MantriVenkatRaj.librarymanagement.bookclub.dto.BookClubDTO;
 import com.MantriVenkatRaj.librarymanagement.bookclub.entities.BookClub;
 import com.MantriVenkatRaj.librarymanagement.bookclub.entities.ClubMember;
 import com.MantriVenkatRaj.librarymanagement.bookclub.enums.MembershipRole;
+import com.MantriVenkatRaj.librarymanagement.bookclub.repositories.ClubMemberRepository;
 import com.MantriVenkatRaj.librarymanagement.bookclub.repositories.ClubRepository;
 import com.MantriVenkatRaj.librarymanagement.bookclub.requests.ClubRequest;
 import com.MantriVenkatRaj.librarymanagement.message.entities.Message;
@@ -27,13 +28,15 @@ public class BookClubService {
     private final UserService userService;
     private final BookService bookService;
     private final ClubMemberService clubMemberService;
+    private final ClubMemberRepository clubMemberRepository;
 
 
-    public BookClubService(com.MantriVenkatRaj.librarymanagement.bookclub.repositories.ClubRepository clubRepository, UserService userService, BookService bookService, ClubMemberService clubMemberService) {
+    public BookClubService(com.MantriVenkatRaj.librarymanagement.bookclub.repositories.ClubRepository clubRepository, UserService userService, BookService bookService, ClubMemberService clubMemberService, ClubMemberRepository clubMemberRepository) {
         this.clubRepository = clubRepository;
         this.userService = userService;
         this.bookService = bookService;
         this.clubMemberService = clubMemberService;
+        this.clubMemberRepository = clubMemberRepository;
     }
 
     public List<BookClubDTO> getAllClubs() {
@@ -113,6 +116,7 @@ public class BookClubService {
                         .visibility(club.getVisibility())
                         .createdAt(club.getCreatedAt())
                         .admin(club.getAdmin() != null ? club.getAdmin().getUsername() : null)
+                        .numOfMembers(clubMemberRepository.countByClub_Id(club.getId()))
                         .build())
                 .collect(Collectors.toList());
 
@@ -122,8 +126,10 @@ public class BookClubService {
         return clublist;
     }
 
-    public BookClubDTO getClubDTO(String clubName) {
+    public BookClubDTO getClubDTO(String clubName,String username) {
         BookClub club=clubRepository.findByName(clubName).orElseThrow(ClubNotFoundException::new);
+        ClubMember clubMember= clubMemberRepository.findByUser_UsernameAndClub_Name(username,clubName).orElse(null);
+        boolean isMember= clubMember != null;
         return BookClubDTO.builder()
                 .name(club.getName())
                 .description(club.getDescription())
@@ -131,6 +137,8 @@ public class BookClubService {
                 .admin(club.getAdmin().getUsername())
                 .id(club.getId())
                 .createdAt(club.getCreatedAt())
+                .numOfMembers(clubMemberRepository.countByClub_Id(club.getId()))
+                .isMember(isMember)
                 .build();
 
     }

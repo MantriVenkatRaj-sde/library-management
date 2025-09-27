@@ -1,20 +1,28 @@
 package com.MantriVenkatRaj.librarymanagement.user;
 
 import com.MantriVenkatRaj.librarymanagement.Exception.UserNotFoundException;
+import com.MantriVenkatRaj.librarymanagement.book.Book;
+import com.MantriVenkatRaj.librarymanagement.book.bookoverallrating.BookOverallRating;
+import com.MantriVenkatRaj.librarymanagement.book.bookoverallrating.BookOverallRatingRepository;
+import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final BookOverallRatingRepository bookOverallRatingRepository;
 
-    public UserService(UserRepository userRepository, ModelMapper modelMapper) {
+    public UserService(UserRepository userRepository, ModelMapper modelMapper, BookOverallRatingRepository bookOverallRatingRepository) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.bookOverallRatingRepository = bookOverallRatingRepository;
     }
 
 
@@ -30,5 +38,23 @@ public class UserService {
     }
     public User findByUsername(String username){
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+    }
+
+    public Set<BookListDTO> getReadersList(String username) {
+        User user=findByUsername(username);
+        Set<Book> readersList=user.getReadersList();
+        return readersList.stream().map(book->{
+            var avgRating=bookOverallRatingRepository.findByBook_Isbn(book.getIsbn()).get().getAvgRating();
+            var ratingCount=bookOverallRatingRepository.findByBook_Isbn(book.getIsbn()).get().getRatingCount();
+            return BookListDTO.builder()
+                    .id(book.getId())
+                    .title(book.getTitle())
+                    .author(book.getAuthor())
+                    .imageLink(book.getBookMedia().getImageLink())
+                    .avgRating(avgRating)
+                    .ratingCount(ratingCount)
+                    .isbn(book.getIsbn())
+                    .build();
+            }).collect(Collectors.toSet());
     }
 }

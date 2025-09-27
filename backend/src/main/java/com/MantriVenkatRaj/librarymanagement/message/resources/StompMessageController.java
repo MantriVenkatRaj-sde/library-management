@@ -3,12 +3,15 @@ package com.MantriVenkatRaj.librarymanagement.message.resources;
 import com.MantriVenkatRaj.librarymanagement.message.requests.MessageCreateRequest;
 import com.MantriVenkatRaj.librarymanagement.message.services.MessageService;
 import com.MantriVenkatRaj.librarymanagement.message.services.PresenceService;
+import jakarta.validation.Valid;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+
+import java.security.Principal;
 
 @Controller
 public class StompMessageController {
@@ -22,10 +25,11 @@ public class StompMessageController {
 
     // Destination to send this message /app/chat.send
     @MessageMapping("/chat.send")
-    public void handleStompSend(@Payload MessageCreateRequest req) {
-        // Persist & broadcast (ChatService handles conversion to DTO and broadcasting)
-        messageService.postMessage(req.getClubname(), req.getSendername(), req.getContent());
+    public void handleStompSend(@Payload @Valid MessageCreateRequest req, Principal principal) {
+        String username = (principal != null && principal.getName() != null) ? principal.getName() : req.getSendername();
+        messageService.postMessage(req.getClubname(), username, req.getContent());
     }
+
 
     /**
      * Optional: client notifies server which club it is currently viewing.

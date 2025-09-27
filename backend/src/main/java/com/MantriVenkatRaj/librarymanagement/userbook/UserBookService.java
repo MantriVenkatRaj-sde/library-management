@@ -79,6 +79,7 @@ public class UserBookService {
 
         UserBook ub = new UserBook(user, book, UserBook.ReadStatus.Readlist);
         userBookRepository.save(ub);
+        user.getReadersList().add(book);
     }
 
     @Transactional
@@ -93,14 +94,25 @@ public class UserBookService {
 
         UserBook ub = new UserBook(user, book, UserBook.ReadStatus.Readlist);
         userBookRepository.save(ub);
+        user.getReadersList().add(book);
     }
 
     @Transactional
     public void updateBookReadingStatus(String username, String isbn, String readStatus) {
+        User user=userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        Book book=bookRepository.findByIsbn(isbn).orElseThrow(BookNotFoundException::new);
+        user.getReadersList().remove(book);
         userBookRepository.updateStatusByUserIdAndBookIsbn(username,isbn,readStatus);
+        UserBook userBook=userBookRepository.findByUser_UsernameAndBook_Isbn(username,isbn);
+
+        user.getReadersList().add(userBook.getBook());
+
     }
 
     public void abandonAndDelete(String username, String isbn) {
+        User user=userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        Book book=bookRepository.findByIsbn(isbn).orElseThrow(BookNotFoundException::new);
         userBookRepository.deleteByUser_UsernameAndBook_Isbn(username,isbn);
+        user.getReadersList().remove(book);
     }
 }

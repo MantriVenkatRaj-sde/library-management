@@ -1,5 +1,5 @@
 .component {
-  background: linear-gradient(135deg, #000, #312e2e, #302c2c);
+  background: linear-gradient(135deg, #000, #231515, #100d0d);
   background-size: 400% 400%;
   padding-top: 90px; /* header height + some spacing */
   min-height: 100vh;

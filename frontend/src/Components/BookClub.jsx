@@ -1,6 +1,7 @@
 import { use, useEffect, useState } from "react";
 import "../Styling/Background.css";
 import "../Styling/Icon.css";
+import "../Styling/Tile.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { getClubApi, joinClubApi } from "../API/BookClubAPI";
 import BookClubGeneralLogo from "../Images/ClubIconGeneral.jpg";
@@ -101,7 +102,7 @@ export function BookClub() {
   return (
     <div className="component">
         <div
-            className="d-flex my-container bg-dark"
+            className="d-flex my-container bg-dark tile-container-bg"
             style={{
             minWidth: "calc(100% - 20px)",
             
@@ -175,10 +176,10 @@ export function BookClub() {
                         </button>
                   </div>
 
-                   <div className="d-flex align-items-center justify-content-center  rounded-circle bg-light p-2 align-items-center"
+                { isMember &&   <div className="d-flex align-items-center justify-content-center  rounded-circle bg-light p-2 align-items-center"
                       style={{width:"40px", height:"40px", border: "3px solid #198754", marginRight:"20px",transition: "transform 0.4s",}}
                       onMouseEnter={(e)=>(
-                        e.currentTarget.style.transform="scale(1.2)",
+                        e.currentTarget.style.transform="scale(1.1)",
                         e.currentTarget.style.boxShadow="0 0 10px #198754"
                       )}
                       onMouseLeave={(e)=>(e.currentTarget.style.transform="scale(1)")}
@@ -186,9 +187,9 @@ export function BookClub() {
                         <button   onClick={() => ClubChat(clubId,clubname, auth.user)}
                           style={{borderRadius:"50%",borderColor:"white",width:"35px", height:"35px"}}
                           className="border m-1">
-                            {isMember &&  <MdChat size={24} color="green"/> }
+                             <MdChat size={24} color="green"/> 
                         </button>
-                  </div>
+                  </div>}
                     
               
               </div>

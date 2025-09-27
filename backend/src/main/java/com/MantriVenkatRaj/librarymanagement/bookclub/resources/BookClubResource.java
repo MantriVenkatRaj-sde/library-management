@@ -14,6 +14,7 @@ import java.util.List;
 public class BookClubResource {
     private final BookClubService bookClubService;
 
+
     public BookClubResource(BookClubService bookClubService) {
         this.bookClubService = bookClubService;
     }
@@ -33,9 +34,9 @@ public class BookClubResource {
         return ResponseEntity.ok(bookClubService.recommendClubsForBook(isbn));
     }
 
-    @GetMapping("/getclub/{clubname}")
-    public ResponseEntity<BookClubDTO> getClub(@PathVariable String clubName){
-        return ResponseEntity.ok(bookClubService.getClubDTO(clubName));
+    @GetMapping("/getclub/{clubName}")
+    public ResponseEntity<BookClubDTO> getClubToAUser(@RequestParam String username,@PathVariable String clubName){
+        return ResponseEntity.ok(bookClubService.getClubDTO(clubName,username));
     }
 
     @GetMapping("/{clubname}/getmessages")
@@ -46,6 +47,7 @@ public class BookClubResource {
     public ResponseEntity<String> joinClub(@PathVariable String clubname,@PathVariable String username){
         return bookClubService.joinClub(clubname,username);
     }
+
 
 
 }

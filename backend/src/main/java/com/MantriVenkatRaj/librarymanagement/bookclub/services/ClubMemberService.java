@@ -1,6 +1,8 @@
 package com.MantriVenkatRaj.librarymanagement.bookclub.services;
 
 import com.MantriVenkatRaj.librarymanagement.Exception.ClubNotFoundException;
+import com.MantriVenkatRaj.librarymanagement.Exception.UserNotFoundException;
+import com.MantriVenkatRaj.librarymanagement.bookclub.dto.BookClubDTO;
 import com.MantriVenkatRaj.librarymanagement.bookclub.entities.BookClub;
 import com.MantriVenkatRaj.librarymanagement.bookclub.entities.ClubMember;
 import com.MantriVenkatRaj.librarymanagement.bookclub.enums.MembershipRole;
@@ -10,6 +12,8 @@ import com.MantriVenkatRaj.librarymanagement.user.User;
 import com.MantriVenkatRaj.librarymanagement.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -48,5 +52,19 @@ public class ClubMemberService {
 //                .role(clubMember.getRole())
 //                .joinedAt(clubMember.getJoinedAt())
 //                .build();
+    }
+
+    public List<BookClubDTO> getUserMembership(String username) {
+        List<ClubMember> list=clubMemberRepository.findByUser_Username(username).orElseThrow(UserNotFoundException::new);
+        return  list.stream().map(ClubMember::getClub)
+                .map(club->
+                        BookClubDTO.builder()
+                                .id(club.getId())
+                                .name(club.getName())
+                                .description(club.getDescription())
+                                .visibility(club.getVisibility())
+                                .createdAt(club.getCreatedAt())
+                                .admin(club.getAdmin().getUsername())
+                                .build()).toList();
     }
 }

@@ -1,7 +1,7 @@
 // src/components/Chat.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { MdSend } from "react-icons/md";
- import { AiOutlineArrowLeft } from 'react-icons/ai';
+import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useChatContext } from "../context/ChatContext";
 import { toast } from "react-toastify";
 import { Client } from "@stomp/stompjs";
@@ -12,112 +12,110 @@ import { useAuth } from "../Authentication/AuthContext";
 import "../Styling/Background.css";
 import "../Styling/Chat.css";
 
+/* ---------- per-user color helpers ---------- */
+const PALETTE = [
+  "#103965ff", "#512e0cff", "#571415ff", "#155953ff", "#15480eff",
+  "#42370fff", "#58214bff", "#56262bff", "#5d3621ff", "#542913ff"
+];
+function colorFromName(name = "") {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0;
+  return PALETTE[Math.abs(h) % PALETTE.length];
+}
+
 export function Chat() {
-  const { userName, clubName, connected, setConnected, setClubName, setUserName } = useChatContext();
+  const { userName, clubName, setConnected, setClubName, setUserName } = useChatContext();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [userColors, setUserColors] = useState(new Map()); // will load per club below
+
   const chatBoxRef = useRef(null);
   const stompRef = useRef(null);
   const subscriptionRef = useRef(null);
   const navigate = useNavigate();
   const auth = useAuth();
-  const { clubid,clubname } = useParams();
+  const { clubid, clubname } = useParams();
 
-  // initialize clubName and userName from route/auth if missing
+  /* ---------- init club/user from route/auth ---------- */
   useEffect(() => {
-    if (clubid && clubname && !clubName) {
-      setClubName(decodeURIComponent(clubname));
-    }
-    if (!userName && auth && auth.user) {
-      setUserName(auth.user);
-    }
-    console.log("Chat mounted with club param:", clubname, "clubName in context:", clubName, "userName:", userName,"clubId:",clubid);
-  }, [clubname,clubid, clubName, setClubName, userName, setUserName, auth]);
+    if (clubid && clubname) setClubName(decodeURIComponent(clubname));
+    if (!userName && auth?.user) setUserName(auth.user);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clubid, clubname, auth?.user]);
 
-  // scroll to bottom on new messages
+  /* ---------- load user color map for this club from sessionStorage ---------- */
+  useEffect(() => {
+    const key = `chatColors:${clubName || "global"}`;
+    const saved = sessionStorage.getItem(key);
+    setUserColors(saved ? new Map(JSON.parse(saved)) : new Map());
+  }, [clubName]);
+
+  /* ---------- persist color map when it changes ---------- */
+  useEffect(() => {
+    const key = `chatColors:${clubName || "global"}`;
+    sessionStorage.setItem(key, JSON.stringify(Array.from(userColors.entries())));
+  }, [userColors, clubName]);
+
+  function colorFor(sender) {
+    if (!sender) return "#666";
+    if (!userColors.has(sender)) {
+      const next = new Map(userColors);
+      next.set(sender, colorFromName(sender));
+      setUserColors(next);
+      return next.get(sender);
+    }
+    return userColors.get(sender);
+  }
+
+  /* ---------- autoscroll on new messages ---------- */
   useEffect(() => {
     if (chatBoxRef.current) {
-      chatBoxRef.current.scroll({
-        top: chatBoxRef.current.scrollHeight,
-        behavior: "smooth",
-      });
+      chatBoxRef.current.scroll({ top: chatBoxRef.current.scrollHeight, behavior: "smooth" });
     }
   }, [messages]);
 
-  // load initial messages when clubName changes
+  /* ---------- initial messages load per club ---------- */
   useEffect(() => {
-    if (!clubName) {
-      setMessages([]);
-      return;
-    }
+    if (!clubName) { setMessages([]); return; }
     let isMounted = true;
-    async function loadMessages() {
+    (async () => {
       try {
-        const resp = await getClubMessagesSinceApi(clubName); // function should return res.data or similar
-        console.log("[CHAT] raw messages response:", resp);
-
-        // Be defensive: accept either an array or an axios-like { data: array } or full response
-        const arr = Array.isArray(resp)
-          ? resp
-          : (resp && Array.isArray(resp.data) ? resp.data : []);
-
+        const resp = await getClubMessagesSinceApi(clubName);
+        const arr = Array.isArray(resp) ? resp : (resp?.data && Array.isArray(resp.data) ? resp.data : []);
         const normalized = arr.map((m) => ({
           id: m.id,
-          sendername:
-            (m.sender && (m.sender.username || m.sender.name)) ||
-            m.sendername ||
-            m.sender ||
-            "Unknown",
+          sendername: (m.sender && (m.sender.username || m.sender.name)) || m.sendername || m.sender || "Unknown",
           content: m.content,
           sentAt: m.sentAt || m.sent_at || Date.now(),
         }));
-
-        if (!isMounted) return;
-        setMessages(normalized);
+        if (isMounted) setMessages(normalized);
       } catch (err) {
         console.error("Failed to load messages", err);
         toast.error("Could not load messages");
       }
-    }
-    loadMessages();
+    })();
     return () => { isMounted = false; };
   }, [clubName]);
 
-  // connect STOMP and subscribe
+  /* ---------- STOMP connect/subscribe ---------- */
   useEffect(() => {
-    // ensure there's at least a default club
     if (!clubName) return;
-    // Use auth.token exactly as you provided ("Bearer <raw>") — no reformatting
-    const connectHeaders = auth && auth.token ? { Authorization: auth.token } : {};
-    console.log("[STOMP] will connect with headers:", connectHeaders);
 
+    const connectHeaders = auth?.token ? { Authorization: auth.token } : {};
     const client = new Client({
-      webSocketFactory: () => {
-        console.log("[STOMP] creating SockJS -> http://localhost:8080/chat");
-        return new SockJS("http://localhost:8080/chat");
-      },
+      webSocketFactory: () => new SockJS("http://localhost:8080/chat"),
       connectHeaders,
       reconnectDelay: 5000,
       debug: (msg) => console.debug("[STOMP DEBUG]", msg),
-      beforeConnect: () => console.log("[STOMP] beforeConnect"),
-      onConnect: (frame) => {
-        console.log("[STOMP] onConnect frame:", frame);
-        setConnected && setConnected(true);
-        
-
-        // subscribe to the server's broadcast topic
+      onConnect: () => {
+        setConnected?.(true);
         try {
-          const topic = `/topic/bookclub.${clubName}`; // must match server exactly
-          console.log("[STOMP] subscribing to topic:", topic);
-
-          // unsubscribe old
+          const topic = `/topic/bookclub.${clubName}`;
           if (subscriptionRef.current) {
-            try { subscriptionRef.current.unsubscribe(); } catch (_) {}
+            try { subscriptionRef.current.unsubscribe(); } catch {}
             subscriptionRef.current = null;
           }
-
           subscriptionRef.current = client.subscribe(topic, (frame) => {
-            console.log("[STOMP] message frame:", frame);
             try {
               const body = JSON.parse(frame.body);
               const normalized = {
@@ -128,21 +126,16 @@ export function Chat() {
               };
               setMessages((prev) => [...prev, normalized]);
             } catch (e) {
-              console.error("[STOMP] failed parsing message", e, frame.body);
+              console.error("[STOMP] parse error", e);
             }
           });
         } catch (err) {
           console.error("[STOMP] subscribe error", err);
         }
       },
-      onStompError: (frame) => {
-        console.error("[STOMP] broker error:", frame);
-        toast.error("WebSocket broker error");
-      },
-      onWebSocketOpen: (evt) => console.log("[STOMP] websocket open", evt),
-      onWebSocketError: (evt) => console.error("[STOMP] websocket error", evt),
-      onWebSocketClose: (evt) => { console.warn("[STOMP] websocket close", evt); setConnected && setConnected(false); },
-      onDisconnect: () => { setConnected && setConnected(false); }
+      onWebSocketError: (e) => console.error("[STOMP] websocket error", e),
+      onWebSocketClose: () => setConnected?.(false),
+      onStompError: (frame) => { console.error("[STOMP] broker error:", frame); toast.error("WebSocket broker error"); },
     });
 
     client.activate();
@@ -150,40 +143,28 @@ export function Chat() {
 
     return () => {
       try {
-        if (subscriptionRef.current) {
-          subscriptionRef.current.unsubscribe();
-          subscriptionRef.current = null;
-        }
-        if (stompRef.current) {
-          stompRef.current.deactivate();
-          stompRef.current = null;
-        }
-      } catch (err) {
-        console.warn("Error while disconnecting STOMP", err);
+        subscriptionRef.current?.unsubscribe();
+        subscriptionRef.current = null;
+        stompRef.current?.deactivate();
+        stompRef.current = null;
+      } catch (e) {
+        console.warn("Disconnect error", e);
       } finally {
-        setConnected && setConnected(false);
+        setConnected?.(false);
       }
     };
-  }, [clubName, setConnected, auth]); // include auth so connection picks up token changes
+  }, [clubName, setConnected, auth]);
 
-  // send message
+  /* ---------- send message ---------- */
   const sendMessage = async () => {
     if (!input.trim()) return;
     const client = stompRef.current;
-
-    const payload = {
-      clubname: clubName,
-      content: input.trim(),
-    };
+    const payload = { clubname: clubName, content: input.trim() };
 
     try {
       if (client && client.connected) {
-        client.publish({
-          destination: "/app/chat.send", // publish to /app -> server @MessageMapping("/chat.send")
-          body: JSON.stringify(payload),
-        });
+        client.publish({ destination: "/app/chat.send", body: JSON.stringify(payload) });
       } else {
-        // fallback using REST
         await postMessageViaRest({ clubname: clubName, sendername: userName, content: input.trim() });
       }
       setInput("");
@@ -194,90 +175,84 @@ export function Chat() {
   };
 
   function handleBack() {
-    try {
-      if (stompRef.current) stompRef.current.deactivate();
-    } catch (e) {
-      console.warn(e);
-    } finally {
-      setConnected && setConnected(false);
-      setClubName("");
-      navigate("/home");
-    }
+    try { stompRef.current?.deactivate(); } catch {}
+    setConnected?.(false);
+    setClubName("");
+    navigate(-1);
   }
 
+  /* ---------- UI ---------- */
   return (
-    <div className="d-flex flex-column bg-dark vh-100 w-100 text-light mt-5">
+    <div className="d-flex flex-column vh-100 w-100 text-light">
       <header
-        className="d-flex align-items-center p-3 bg-dark text-light chat-header"
-        style={{
-          position: "sticky",
-          top: "50px",
-          zIndex: 1000,
-          width: "100%",
-          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-        }}
+        className="d-flex align-items-center p-3 bg-dark text-light"
+        style={{ height: 60, flexShrink: 0, boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
       >
-        {/* Left: Back button */}
-        <div className="d-flex align-items-center" style={{ position: "absolute", left: "15px" }}>
+        <div className="d-flex align-items-center" style={{ position: "absolute", left: 15 }}>
           <button
             className="btn btn-secondary me-2"
             type="button"
             onClick={handleBack}
             style={{ backgroundColor: "Red", transition: "transform 0.2s" }}
             title="Back"
-            onMouseEnter={(e) => (
-              (e.currentTarget.style.transform = "scale(1.2)"),
-              (e.currentTarget.style.boxShadow = "0 0 10px #198754")
-            )}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
             onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             <AiOutlineArrowLeft size={20} />
           </button>
         </div>
-
-        {/* Center: Club name */}
         <div
           className="text-light text-center w-100 fw-bold fs-3"
-          onClick={()=> navigate(`/clubs/bookclub/${clubid}/${clubName}`)}
+          onClick={() => navigate(`/clubs/bookclub/${clubid}/${clubName}`)}
+          style={{ cursor: "pointer" }}
+          title={clubName}
         >
-            <div 
-            style={{ cursor: "pointer" }}
-            title={clubName} >
-              {clubName}
-            </div>
+          {clubName}
         </div>
       </header>
 
       <div
-        className="container bg-dark rounded overflow-auto p-10 fixed component"
-        style={{ minHeight: "70vh", maxHeight: "80vh", marginBottom: "60px",width:"100%"}}
-        aria-live="polite"
         ref={chatBoxRef}
+        className="rounded overflow-auto px-2 py-2 component"
+        style={{ flex: 1, width: "100%" }}
+        aria-live="polite"
       >
-        {messages.map((msg, index) => {
-          const isYou = (msg.sendername || "").toLowerCase() === (userName || "").toLowerCase();
-          return (
-            <div
-              key={msg.id ?? index}
-              className={isYou ? "d-flex justify-content-end mb-2" : "d-flex justify-content-start mb-2"}
-            >
-              <div className={`d-inline-block rounded px-3 py-2 ${isYou ? "bg-primary text-light" : "bg-success text-light"}`}>
-                <div className={isYou ? "text-end small text-muted text-light" : "text-start small text-muted text-light"}>
-                  {isYou ? "You" : msg.sendername}{" "}
-                  <span className="small text-muted">· {new Date(msg.sentAt).toLocaleTimeString()}</span>
+        {messages.length === 0 ? (
+          <div>No Messages</div>
+        ) : (
+          messages.map((msg, index) => {
+            const isYou =
+              (msg.sendername || "").toLowerCase() === (userName || "").toLowerCase();
+            const bg = isYou ? "#062d67ff" : colorFor(msg.sendername);
+
+            return (
+              <div
+                key={msg.id ?? index}
+                className={isYou ? "d-flex justify-content-end mb-2" : "d-flex justify-content-start mb-2"}
+              >
+                <div
+                  className="d-inline-block rounded px-3 py-2 text-light fs-6"
+                  style={{ backgroundColor: bg, maxWidth: "70%" }}
+                >
+                  <div className={isYou ? "text-end fw-bold text-light" : "text-start fw-bold text-light"}>
+                    {isYou ? "You" : msg.sendername}{" "}
+                    <span className="small text-light">
+                      · {new Date(msg.sentAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                  <div style={{ whiteSpace: "pre-wrap" }}>{msg.content}</div>
                 </div>
-                <div style={{ whiteSpace: "pre-wrap" }}>{msg.content}</div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
       <form
         onSubmit={(e) => { e.preventDefault(); sendMessage(); }}
-        className="d-flex justify-content-center align-items-center fixed-bottom p-3 bg-dark "
+        className="d-flex justify-content-center align-items-center p-3 bg-dark"
+        style={{ flexShrink: 0 }}
       >
-        
         <div style={{ flex: 1 }}>
           <input
             value={input}

@@ -17,5 +17,6 @@ public class BookClubDTO {
     private String admin;
     private Visibility visibility;
     private Instant createdAt;
-    private boolean isMember=false;
+    private boolean isMember;
+    private Long numOfMembers;
 }

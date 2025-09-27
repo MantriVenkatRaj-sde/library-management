@@ -26,15 +26,15 @@ public class UserBookResource {
 
     //Adding a book to a user's Read list using bookId
     @PostMapping("/users/{username}/books/id/{bookId}")
-    public String addBookToReadListById(@PathVariable String username,@PathVariable long bookId){
+    public ResponseEntity<String> addBookToReadListById(@PathVariable String username,@PathVariable long bookId){
         userBookService.addNewUserBookById(username,bookId);
-        return "Book was added to User's Read List";
+        return ResponseEntity.ok("Book was added to User's Read List");
     }
     //Adding a book to a user's Read list using isbn
     @PostMapping("/users/{username}/books/isbn/{isbn}")
-    public String addBookToReadListByIsbn(@PathVariable String username,@PathVariable String isbn){
-        userBookService.addNewUserBookByIsbn(username,isbn);
-        return "Book was added to User's Read List";
+    public ResponseEntity<String> addBookToReadListByIsbn(@PathVariable String username, @PathVariable String isbn) {
+        userBookService.addNewUserBookByIsbn(username, isbn);
+        return ResponseEntity.ok("Book was added to User's Read List");
     }
     @PutMapping("/users/{username}/books/isbn/{isbn}/{readStatus}")
     public ResponseEntity<Object> updateBookReadingStatus(@PathVariable String username, @PathVariable String isbn, @PathVariable String userBookStatus){

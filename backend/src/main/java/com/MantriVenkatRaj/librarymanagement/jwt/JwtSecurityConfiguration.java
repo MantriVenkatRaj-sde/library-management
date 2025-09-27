@@ -64,13 +64,35 @@ public class JwtSecurityConfiguration {
         return http.build();
     }
 
+//    @Bean
+//    @Order(2)
+//    SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(HttpMethod.OPTIONS).permitAll()
+//                        .anyRequest().authenticated()
+//                )
+//                .sessionManagement(session -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                )
+//                .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
+//        return http.build();
+//    }
+
     @Bean
     @Order(2)
     SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
+                        // allow SockJS/WebSocket handshake and info (so /chat/info isn't blocked)
+                        .requestMatchers("/chat/**").permitAll()
+                        // your public endpoints
+                        .requestMatchers("/authenticate", "/signup", "/").permitAll()
+                        // all other endpoints require auth
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -81,7 +103,7 @@ public class JwtSecurityConfiguration {
     }
 
 
-//    @Bean
+    //    @Bean
 //    public UserDetailsManager userDetailsManager(DataSource dataSource) {
 //        // Loads users from your SQL database (Spring Security default schema)
 //        return new JdbcUserDetailsManager(dataSource);
@@ -148,17 +170,35 @@ public class JwtSecurityConfiguration {
         return new NimbusJwtEncoder(jwkSource);
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*")); // all origins
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(false); // must be false with "*"
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOriginPatterns(List.of("*")); // all origins
+//        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+//        configuration.setAllowedHeaders(List.of("*"));
+//        configuration.setAllowCredentials(false); // must be false with "*"
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    // Allow only your frontend origin (do NOT use "*")
+    configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setAllowCredentials(true); // <--- critical: return Access-Control-Allow-Credentials: true
+
+    // Expose Authorization header if you need client-side access to it
+    configuration.setExposedHeaders(List.of("Authorization"));
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+}
+
 
 }

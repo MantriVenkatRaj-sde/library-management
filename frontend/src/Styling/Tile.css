@@ -1,0 +1,20 @@
+.tile-bg {
+  background: linear-gradient(135deg, #042353, #48122b, #3f1e1e, #100d0d);
+  background-size: 400% 400%;
+
+  animation: gradientShift 6s ease infinite;
+
+}
+.tile-container-bg {
+  background: linear-gradient(135deg, #2e2764,#3e1336, #401880, #605712ef);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
