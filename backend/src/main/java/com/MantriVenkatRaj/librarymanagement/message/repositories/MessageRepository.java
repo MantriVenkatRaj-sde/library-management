@@ -18,9 +18,12 @@ public interface MessageRepository extends JpaRepository<Message,Long> {
 
     List<Message> findByClub_NameAndIdGreaterThanOrderByIdAsc(String clubname, Long afterId);
 
-    Long countByClub_IdAndIdGreaterThan(Long clubId, Long afterId);
+    long countByClub_IdAndIdGreaterThanAndSender_UsernameNot(Long clubId, Long afterId, String username);
+
     Optional<Message> findTopByClub_NameOrderByIdDesc(String clubname);
 
 
     List<Message> findAllByClub_Name(String clubname);
+
+    void deleteByClub_Name(String clubname);
 }

@@ -19,4 +19,5 @@ public class BookClubDTO {
     private Instant createdAt;
     private boolean isMember;
     private Long numOfMembers;
+    private Instant lastMessageAt;
 }

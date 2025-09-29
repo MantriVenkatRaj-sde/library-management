@@ -28,4 +28,12 @@ public interface ClubRepository extends JpaRepository<BookClub,Long> {
             "WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "   OR LOWER(c.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<BookClub> searchByKeyword(@Param("keyword") String keyword);
+
+        @Query("""
+          select c from BookClub c
+          left join fetch c.members
+          left join fetch c.messages
+          where c.name = :name
+        """)
+        Optional<BookClub> findByNameWithMembersAndMessages(String name);
 }

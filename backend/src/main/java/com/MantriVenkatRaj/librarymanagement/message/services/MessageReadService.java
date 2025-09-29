@@ -1,14 +1,15 @@
 package com.MantriVenkatRaj.librarymanagement.message.services;
 
+import com.MantriVenkatRaj.librarymanagement.Exception.NotAClubMemberException;
 import com.MantriVenkatRaj.librarymanagement.Exception.UserNotFoundException;
 import com.MantriVenkatRaj.librarymanagement.bookclub.entities.ClubMember;
 import com.MantriVenkatRaj.librarymanagement.bookclub.repositories.ClubMemberRepository;
+import com.MantriVenkatRaj.librarymanagement.message.dtos.MessageDTO;
 import com.MantriVenkatRaj.librarymanagement.message.entities.Message;
 import com.MantriVenkatRaj.librarymanagement.message.repositories.MessageRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +34,7 @@ public class MessageReadService {
         for (ClubMember m : memberships) {
             Long lastRead = m.getLastReadMessageId() == null ? 0L : m.getLastReadMessageId();
             Long clubId = m.getClub().getId();
-            Long count = messageRepo.countByClub_IdAndIdGreaterThan(clubId, lastRead);
+            Long count = messageRepo.countByClub_IdAndIdGreaterThanAndSender_UsernameNot(clubId, lastRead,username);
             result.put(clubId, count);
         }
         return result;
@@ -58,8 +59,21 @@ public class MessageReadService {
      * Fetch messages since a given id (wrapper).
      */
     @Transactional
-    public List<Message> fetchMessagesSince(String clubname, Long sinceId) {
+    public List<MessageDTO> fetchMessagesSince(String clubname, String username, Long sinceId) {
         if (sinceId == null) sinceId = 0L;
-        return messageRepo.findByClub_NameAndIdGreaterThanOrderByIdAsc(clubname, sinceId);
+        ClubMember clubMember=clubMemberRepo.findByUser_UsernameAndClub_Name(username,clubname)
+                .orElseThrow(NotAClubMemberException::new);
+        List<Message> messages=messageRepo.findByClub_NameAndIdGreaterThanOrderByIdAsc(clubname, sinceId);
+        var last=messages.isEmpty()?null:messages.getLast().getId();
+        clubMember.setLastReadMessageId(last);
+        clubMemberRepo.save(clubMember);
+        return messages.stream().map(message -> {
+                return  MessageDTO.builder()
+                    .id(message.getId())
+                    .sendername(message.getSender().getUsername())
+                    .content(message.getContent())
+                    .clubname(message.getClub().getName())
+                    .sentAt(message.getSentAt()).build();
+        }).toList();
     }
 }

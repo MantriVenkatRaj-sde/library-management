@@ -47,6 +47,12 @@ public class BookClubResource {
     public ResponseEntity<String> joinClub(@PathVariable String clubname,@PathVariable String username){
         return bookClubService.joinClub(clubname,username);
     }
+    @DeleteMapping("/{username}/club/{clubname}/delete")
+    public ResponseEntity<String> deleteClub(@PathVariable String username,
+                                             @PathVariable String clubname){
+        bookClubService.deleteClub(username,clubname);
+        return  ResponseEntity.ok("Club deleted successfully");
+    }
 
 
 

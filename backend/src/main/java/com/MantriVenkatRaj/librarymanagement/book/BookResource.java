@@ -1,7 +1,6 @@
 package com.MantriVenkatRaj.librarymanagement.book;
 
 import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookComponentDTO;
-import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookDTOMarkedForScrap;
 import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO;
 import com.MantriVenkatRaj.librarymanagement.rating.Rating;
 import com.MantriVenkatRaj.librarymanagement.rating.dto.BookRatingDTO;
@@ -26,7 +25,7 @@ public class BookResource {
         return bookService.getAllBooksHomePageDTO();
     }
     @PostMapping("/add-new-book")
-    public String addNewBookToLibrary(@Valid @RequestBody BookDTOMarkedForScrap bookDTO){
+    public String addNewBookToLibrary(@Valid @RequestBody BookComponentDTO bookDTO){
         bookService.addNewBookToLibrary(bookDTO);
         return "Book was added to the Library successfully !";
     }

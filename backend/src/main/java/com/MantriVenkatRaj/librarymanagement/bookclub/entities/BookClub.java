@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Formula;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -64,6 +65,9 @@ public class BookClub {
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Message> messages = new ArrayList<>();
+
+    @Formula("(select max(m.sent_at) from message m where m.club_id = id)")
+    private Instant lastMessageAt;
 
     public void addMember(ClubMember m) {
         members.add(m);

@@ -2,7 +2,10 @@ package com.MantriVenkatRaj.librarymanagement.message.services;
 
 
 import com.MantriVenkatRaj.librarymanagement.Exception.ClubNotFoundException;
+import com.MantriVenkatRaj.librarymanagement.Exception.NotAClubMemberException;
 import com.MantriVenkatRaj.librarymanagement.bookclub.entities.BookClub;
+import com.MantriVenkatRaj.librarymanagement.bookclub.entities.ClubMember;
+import com.MantriVenkatRaj.librarymanagement.bookclub.repositories.ClubMemberRepository;
 import com.MantriVenkatRaj.librarymanagement.bookclub.repositories.ClubRepository;
 import com.MantriVenkatRaj.librarymanagement.message.dtos.MessageDTO;
 import com.MantriVenkatRaj.librarymanagement.message.entities.Message;
@@ -23,12 +26,14 @@ public class MessageService {
     private final SimpMessagingTemplate messagingTemplate;
     private final ClubRepository clubRepository;
     private final UserService userService;
+    private  final ClubMemberRepository clubMemberRepository;
 
-    public MessageService(MessageRepository messageRepo, SimpMessagingTemplate messagingTemplate, ClubRepository clubRepository, UserService userService) {
+    public MessageService(MessageRepository messageRepo, SimpMessagingTemplate messagingTemplate, ClubRepository clubRepository, UserService userService, ClubMemberRepository clubMemberRepository) {
         this.messageRepo = messageRepo;
         this.messagingTemplate = messagingTemplate;
         this.clubRepository = clubRepository;
         this.userService = userService;
+        this.clubMemberRepository = clubMemberRepository;
     }
 
     /**
@@ -70,8 +75,26 @@ public class MessageService {
                 .build();
     }
 
-    public List<Message> getAllMessages(String clubname) {
+    public List<MessageDTO> getAllMessages(String clubname,String username) {
+        List<Message> messages=messageRepo.findAllByClub_Name(clubname);
         clubRepository.findByName(clubname).orElseThrow(ClubNotFoundException::new);
-        return messageRepo.findAllByClub_Name(clubname);
+        if(!messages.isEmpty()){
+            ClubMember cm=clubMemberRepository.findByUser_UsernameAndClub_Name(username,clubname)
+                    .orElseThrow(NotAClubMemberException::new);
+            cm.setLastReadMessageId(messages.getLast().getId());
+            clubMemberRepository.save(cm);
+        }
+        return messages.stream().map(message -> {
+            return  MessageDTO.builder()
+                    .id(message.getId())
+                    .sendername(message.getSender().getUsername())
+                    .content(message.getContent())
+                    .clubname(message.getClub().getName())
+                    .sentAt(message.getSentAt()).build();
+        }).toList();
+    }
+
+    public void deleteClubMessages(String clubname) {
+        messageRepo.deleteByClub_Name(clubname);
     }
 }

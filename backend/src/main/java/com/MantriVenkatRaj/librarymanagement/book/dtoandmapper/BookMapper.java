@@ -10,15 +10,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Service
-public class BookMapperMarkedForScrap {
+public class BookMapper {
 
     private final GenreRepository genreRepository;
 
-    public BookMapperMarkedForScrap(GenreRepository genreRepository) {
+    public BookMapper(GenreRepository genreRepository) {
         this.genreRepository = genreRepository;
     }
 
-    public Book toEntity(BookDTOMarkedForScrap dto) {
+    public Book toEntity(BookComponentDTO dto) {
         Set<Genre> genreSet = new HashSet<>();
         for (String genreName : dto.getGenres()) {
             Genre genre = genreRepository.findByName(genreName)

@@ -2,10 +2,13 @@ package com.MantriVenkatRaj.librarymanagement.message.entities;
 
 import com.MantriVenkatRaj.librarymanagement.bookclub.entities.BookClub;
 import com.MantriVenkatRaj.librarymanagement.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
 
@@ -31,6 +34,7 @@ public class Message {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
+    @JsonIgnore
     private User sender;
 
     /**
@@ -38,6 +42,8 @@ public class Message {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private BookClub club;
 
     @NotBlank

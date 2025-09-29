@@ -1,6 +1,7 @@
 package com.MantriVenkatRaj.librarymanagement.bookclub.services;
 
 import com.MantriVenkatRaj.librarymanagement.Exception.ClubNotFoundException;
+import com.MantriVenkatRaj.librarymanagement.Exception.NotTheAdminException;
 import com.MantriVenkatRaj.librarymanagement.book.BookService;
 import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookComponentDTO;
 import com.MantriVenkatRaj.librarymanagement.bookclub.dto.BookClubDTO;
@@ -11,12 +12,15 @@ import com.MantriVenkatRaj.librarymanagement.bookclub.repositories.ClubMemberRep
 import com.MantriVenkatRaj.librarymanagement.bookclub.repositories.ClubRepository;
 import com.MantriVenkatRaj.librarymanagement.bookclub.requests.ClubRequest;
 import com.MantriVenkatRaj.librarymanagement.message.entities.Message;
+import com.MantriVenkatRaj.librarymanagement.message.services.MessageService;
 import com.MantriVenkatRaj.librarymanagement.user.User;
 import com.MantriVenkatRaj.librarymanagement.user.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,14 +33,16 @@ public class BookClubService {
     private final BookService bookService;
     private final ClubMemberService clubMemberService;
     private final ClubMemberRepository clubMemberRepository;
+    private final MessageService messageService;
 
 
-    public BookClubService(com.MantriVenkatRaj.librarymanagement.bookclub.repositories.ClubRepository clubRepository, UserService userService, BookService bookService, ClubMemberService clubMemberService, ClubMemberRepository clubMemberRepository) {
+    public BookClubService(com.MantriVenkatRaj.librarymanagement.bookclub.repositories.ClubRepository clubRepository, UserService userService, BookService bookService, ClubMemberService clubMemberService, ClubMemberRepository clubMemberRepository, MessageService messageService) {
         this.clubRepository = clubRepository;
         this.userService = userService;
         this.bookService = bookService;
         this.clubMemberService = clubMemberService;
         this.clubMemberRepository = clubMemberRepository;
+        this.messageService = messageService;
     }
 
     public List<BookClubDTO> getAllClubs() {
@@ -48,6 +54,7 @@ public class BookClubService {
                         .visibility(club.getVisibility())
                         .createdAt(club.getCreatedAt())
                         .admin(club.getAdmin().getUsername())
+                        .lastMessageAt(club.getLastMessageAt())
                         .build()).toList();
     }
 
@@ -58,6 +65,7 @@ public class BookClubService {
                 .description(request.description())
                 .visibility(request.visibility())
                 .admin(admin)
+                .lastMessageAt(Instant.now())
                 .build());
 //        BookClub club=clubRepository.findByName(request.name()).orElseThrow(ClubNotFoundException::new);
 //        ClubMember.builder()
@@ -139,6 +147,7 @@ public class BookClubService {
                 .createdAt(club.getCreatedAt())
                 .numOfMembers(clubMemberRepository.countByClub_Id(club.getId()))
                 .isMember(isMember)
+                .lastMessageAt(club.getLastMessageAt())
                 .build();
 
     }
@@ -155,10 +164,25 @@ public class BookClubService {
 
     public ResponseEntity<String> joinClub(String clubname, String username) {
         ClubMember clubMember=clubMemberService.joinClub(clubname,username,MembershipRole.MEMBER);
-        if(clubMember==null){
-            return ResponseEntity.badRequest().body("Failed to join the club");
-        }
+        BookClub club=clubMember.getClub();
+        club.getMessages().add(messageService
+                   .postMessage(clubname,username,"Hey Guys! Glad to join this club!!"));
         return ResponseEntity.ok("User joined the club successfully!");
 
     }
+
+    @Transactional
+    public void deleteClub(String username, String clubname) {
+
+            BookClub club = clubRepository.findByName(clubname)
+                    .orElseThrow(ClubNotFoundException::new);
+
+            if (!Objects.equals(club.getAdmin().getUsername(), username)) {
+                throw new NotTheAdminException();
+            }
+
+            // Delete the club. Members and messages go with it due to cascade + orphanRemoval.
+            clubRepository.delete(club);
+        }
+
 }

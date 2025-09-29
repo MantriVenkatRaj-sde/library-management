@@ -29,26 +29,22 @@ public class MessageResource {
      * Fetch messages for a club since a given id.
      * GET /api/chat/clubs/{clubId}/messages?sinceId={sinceId}
      */
-    @GetMapping("/clubs/{clubname}/latestmessages")
-    public ResponseEntity<List<MessageDTO>> getMessagesSince(
+//    @GetMapping("/clubs/{clubname}/latestmessages/{username}")
+//    public ResponseEntity<List<MessageDTO>> getMessagesSince(
+//            @PathVariable String clubname,
+//            @PathVariable String username,
+//            @RequestParam(required = false) Long sinceId) {
+//
+//        List<MessageDTO> msgs = messageReadService.fetchMessagesSince(clubname, username, sinceId);
+//        return ResponseEntity.ok(msgs);
+//    }
+    @GetMapping("/clubs/{clubname}/allmessages/{username}")
+    public ResponseEntity<List<MessageDTO>> getAllMessagesSince(
             @PathVariable String clubname,
+            @PathVariable String username,
             @RequestParam(required = false) Long sinceId) {
 
-        List<MessageDTO> msgs = messageReadService.fetchMessagesSince(clubname, sinceId)
-                .stream().map(message ->MessageDTO.builder()
-                        .id(message.getId())
-                        .sendername(message.getSender().getUsername())
-                        .clubname(message.getClub().getName())
-                        .content(message.getContent())
-                        .sentAt(message.getSentAt()).build()).toList();
-        return ResponseEntity.ok(msgs);
-    }
-    @GetMapping("/clubs/{clubname}/allmessages")
-    public ResponseEntity<List<Message>> getAllMessagesSince(
-            @PathVariable String clubname,
-            @RequestParam(required = false) Long sinceId) {
-
-        List<Message> msgs = messageService.getAllMessages(clubname);
+        List<MessageDTO> msgs = messageService.getAllMessages(clubname,username);
         return ResponseEntity.ok(msgs);
     }
 
@@ -57,7 +53,7 @@ public class MessageResource {
      * GET /api/chat/members/{userId}/unread
      * returns: { clubId -> unreadCount }
      */
-    @GetMapping("/members/{username}/unread")
+    @GetMapping("/{username}/messages/unread")
     public ResponseEntity<Map<Long, Long>> getUnreadCounts(@PathVariable String username) {
         Map<Long, Long> counts = messageReadService.getUnreadCountsForUser(username);
         return ResponseEntity.ok(counts);

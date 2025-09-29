@@ -3,7 +3,7 @@ package com.MantriVenkatRaj.librarymanagement.userbook;
 import com.MantriVenkatRaj.librarymanagement.Exception.BookNotFoundException;
 import com.MantriVenkatRaj.librarymanagement.Exception.UserNotFoundException;
 import com.MantriVenkatRaj.librarymanagement.book.Book;
-import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookDTOMarkedForScrap;
+//import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookDTOMarkedForScrap;
 import com.MantriVenkatRaj.librarymanagement.book.BookRepository;
 import com.MantriVenkatRaj.librarymanagement.genre.Genre;
 import com.MantriVenkatRaj.librarymanagement.user.User;
@@ -27,23 +27,23 @@ public class UserBookService {
         this.userRepository = urepo;
         this.bookRepository = brepo;
     }
-    //Get all BooksDTO that are in User's library
-    @Transactional
-    public List<BookDTOMarkedForScrap> getUserBooksListDTO(String username) {
-        List<UserBook> userBookList = userBookRepository.findByUser_Username(username);
-
-        return userBookList.stream()
-                .map(ub -> new BookDTOMarkedForScrap(
-                        ub.getBook().getTitle(),
-                        ub.getBook().getAuthor(),
-                        ub.getBook().getDescription(),
-                        ub.getBook().getIsbn(),
-                        ub.getBook().getGenres().stream()
-                                .map(Genre::getName)   // Convert Genre → String
-                                .collect(Collectors.toSet())
-                ))
-                .collect(Collectors.toList());
-    }
+//    //Get all BooksDTO that are in User's library
+//    @Transactional
+//    public List<BookDTOMarkedForScrap> getUserBooksListDTO(String username) {
+//        List<UserBook> userBookList = userBookRepository.findByUser_Username(username);
+//
+//        return userBookList.stream()
+//                .map(ub -> new BookDTOMarkedForScrap(
+//                        ub.getBook().getTitle(),
+//                        ub.getBook().getAuthor(),
+//                        ub.getBook().getDescription(),
+//                        ub.getBook().getIsbn(),
+//                        ub.getBook().getGenres().stream()
+//                                .map(Genre::getName)   // Convert Genre → String
+//                                .collect(Collectors.toSet())
+//                ))
+//                .collect(Collectors.toList());
+//    }
     //Get all Books that are in User's library
     @Transactional
     public List<Book> getUserBooksList(String username) {

@@ -5,23 +5,19 @@ import com.MantriVenkatRaj.librarymanagement.Exception.GenreNotFoundException;
 import com.MantriVenkatRaj.librarymanagement.book.bookmedia.BookMedia;
 import com.MantriVenkatRaj.librarymanagement.book.bookoverallrating.BookOverallRating;
 import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookComponentDTO;
-import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookDTOMarkedForScrap;
 import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO;
-import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookMapperMarkedForScrap;
+import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookMapper;
 import com.MantriVenkatRaj.librarymanagement.genre.Genre;
 import com.MantriVenkatRaj.librarymanagement.genre.GenreRepository;
-import com.MantriVenkatRaj.librarymanagement.rating.Rating;
 import com.MantriVenkatRaj.librarymanagement.rating.dto.BookRatingDTO;
 import jakarta.validation.Valid;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.io.FileReader;
 import java.io.Reader;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,9 +26,9 @@ public class BookService implements CommandLineRunner {
 
     private final BookRepository bookRepository;
     private final GenreRepository genreRepository;
-    private final BookMapperMarkedForScrap bookMapper;
+    private final BookMapper bookMapper;
 
-    public BookService(BookRepository bookRepository, GenreRepository genreRepository, BookMapperMarkedForScrap bookMapper) {
+    public BookService(BookRepository bookRepository, GenreRepository genreRepository, BookMapper bookMapper) {
         this.bookRepository = bookRepository;
         this.genreRepository = genreRepository;
         this.bookMapper = bookMapper;
@@ -175,7 +171,7 @@ public class BookService implements CommandLineRunner {
         }).collect(Collectors.toList());
     }
 
-    public void addNewBookToLibrary(@Valid BookDTOMarkedForScrap bookDTO) {
+    public void addNewBookToLibrary(@Valid BookComponentDTO bookDTO) {
         Book book = bookMapper.toEntity(bookDTO);
         bookRepository.save(book);
     }
