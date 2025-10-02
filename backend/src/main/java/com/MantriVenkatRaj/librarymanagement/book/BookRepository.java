@@ -96,12 +96,5 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<BookListDTO> findBooksByTitleLike(@Param("pattern") String pattern);
 
 
-
-
-
-
-
-
-
-
+    boolean existsByIsbn(String isbn);
 }
