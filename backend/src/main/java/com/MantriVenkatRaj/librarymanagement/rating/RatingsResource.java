@@ -3,10 +3,12 @@ package com.MantriVenkatRaj.librarymanagement.rating;
 import com.MantriVenkatRaj.librarymanagement.book.BookService;
 import com.MantriVenkatRaj.librarymanagement.rating.dto.BookRatingDTO;
 import com.MantriVenkatRaj.librarymanagement.rating.dto.RatingRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class RatingsResource {
@@ -26,8 +28,12 @@ public class RatingsResource {
 
     //Get all the ratings of a particular book
     @GetMapping("/books/{book_isbn}/ratings")
-    public List<BookRatingDTO> getAllRatingsOfaBook(@PathVariable String book_isbn){
-        return ratingsService.getRatingsOfaBook(book_isbn);
+    public Map<String,Object> getAllRatingsOfaBook(
+            @PathVariable String book_isbn,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ratingsService.getRatingsOfaBook(book_isbn,page,size);
     }
     //Get All Ratings
     @GetMapping("/books/ratings")

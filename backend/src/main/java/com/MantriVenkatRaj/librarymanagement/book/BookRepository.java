@@ -1,6 +1,9 @@
 package com.MantriVenkatRaj.librarymanagement.book;
 
 import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,10 +42,15 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findByGenreName(String genreName);
 
 
-    @Query("SELECT DISTINCT b FROM Book b " +
-            "LEFT JOIN FETCH b.bookMedia md " +
-            "LEFT JOIN FETCH b.bookOverallRating br")
-    List<Book> findAllWithMediaAndRating();
+    @Query("""
+   SELECT new com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO(
+     b.id, b.isbn, b.title, b.author,
+     m.imageLink, r.avgRating, r.ratingCount)
+   FROM Book b
+   JOIN b.bookMedia m
+   JOIN b.bookOverallRating r
+""")
+    Page<BookListDTO> findAllWithMediaAndRating(Pageable pageable);
 
     @Query("SELECT DISTINCT b FROM Book b " +
             "LEFT JOIN FETCH b.bookMedia md " +

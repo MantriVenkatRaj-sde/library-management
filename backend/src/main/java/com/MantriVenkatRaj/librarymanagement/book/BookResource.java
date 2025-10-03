@@ -5,6 +5,7 @@ import com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO;
 import com.MantriVenkatRaj.librarymanagement.rating.Rating;
 import com.MantriVenkatRaj.librarymanagement.rating.dto.BookRatingDTO;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +22,10 @@ public class BookResource {
     }
 
     @GetMapping("/all-books")
-    public List<BookListDTO> getAllBooks(){
-        return bookService.getAllBooksHomePageDTO();
+    public List<BookListDTO> getBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return bookService.getBooks(page, size).getContent();
     }
     @PostMapping("/add-new-book")
     public String addNewBookToLibrary(@Valid @RequestBody BookComponentDTO bookDTO){

@@ -21,8 +21,9 @@ import com.MantriVenkatRaj.librarymanagement.genre.GenreRepository;
 import com.MantriVenkatRaj.librarymanagement.rating.dto.BookRatingDTO;
 import jakarta.validation.Valid;
 import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.FileReader;
@@ -318,24 +319,9 @@ public class BookService implements CommandLineRunner {
         return bookRepository.findAll();
     }
 
-    public List<BookListDTO> getAllBooksHomePageDTO() {
-        List<Book> books = bookRepository.findAllWithMediaAndRating();
-        List<BookListDTO> bookdtos= new ArrayList<>(books.stream().map(b -> {
-            return BookListDTO.builder()
-                    .id(b.getId())
-                    .title(b.getTitle())
-                    .author(b.getAuthor())
-                    .isbn(b.getIsbn())
-                    .imageLink(b.getBookMedia().getImageLink())
-                    .ratingCount(b.getBookOverallRating().getRatingCount())
-                    .avgRating(b.getBookOverallRating().getAvgRating())
-                    .build();
-        }).toList());
+    public Page<BookListDTO> getBooks(int page, int size) {
 
-        if (!bookdtos.isEmpty()) {
-            Collections.shuffle(bookdtos);
-        }
-        return  bookdtos;
+        return bookRepository.findAllWithMediaAndRating(PageRequest.of(page, size));
     }
 
     public void addNewBookToLibrary(@Valid BookComponentDTO bookDTO) {
