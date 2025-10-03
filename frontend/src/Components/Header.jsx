@@ -45,12 +45,14 @@ export default function Header() {
   // prevent form submission for navbar search (we open overlay instead)
   const onNavbarFormSubmit = (e) => {
     e.preventDefault();
+    setQuery(false);
     // optionally open overlay when user clicks the search button too
     setOverlayOpen(true);
   };
 
   // when user focuses navbar input, open overlay
   const onNavbarFocus = () => {
+    setQuery("")
     setOverlayOpen(true);
   };
 
@@ -66,23 +68,22 @@ export default function Header() {
 
   // handle search using the typed query (q)
   const handleSearchSubmit = async (e) => {
-    e?.preventDefault?.();
-    const q = (query || "").trim();
-    if (!q) return;
+  e?.preventDefault?.();
+  const q = (query || "").trim();
+  if (!q) return;
 
-    try {
-     
-      // navigate to results page and pass results in state for instant render
-      navigate(`/search/${q}`);
+  try {
+    navigate(`/search/${q}`);
+    setQuery("");          // <-- clear search bar
+    setOverlayOpen(false);
+  } catch (err) {
+    console.error("Search error", err);
+    navigate(`/search/${q}`);
+    setQuery("");          // <-- clear even on error/fallback
+    setOverlayOpen(false);
+  }
+};
 
-      setOverlayOpen(false);
-    } catch (err) {
-      console.error("Search error", err);
-      // fallback: navigate to page that will re-fetch
-      navigate(`/search/${q}`);
-      setOverlayOpen(false);
-    }
-  };
 
   const chat=useChatContext();
   const handleLogOut = () => {

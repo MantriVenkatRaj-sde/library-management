@@ -28,3 +28,6 @@ export function joinClubApi(clubname,username) {
   return apiClient.post(`/bookclubs/${clubname}/join/${username}`);
 }
 
+export function deleteClubApi(clubname,username) {
+  return apiClient.delete(`/bookclubs/${encodeURIComponent(username)}/club/${encodeURIComponent(clubname)}/delete`);
+}

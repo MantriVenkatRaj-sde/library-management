@@ -50,13 +50,23 @@ useEffect(() => {
 
 
  return (
-    <div className="home-container component">
+    <div className="component">
       {loading ? (
         <p>Loading books...</p>
       ) : (
         <>
-          <BookRow title="Liked Books" books={likedBooks} className="mb-4"></BookRow>
-            <BookRow title="Reader's List" books={readersList} className="mb-4"></BookRow>
+          <BookRow
+            title="Liked Books"
+            books={likedBooks}
+            emptyText="No liked books yet."
+            className="mb-4"
+          />
+           <BookRow
+            title="Reader's List"
+            books={readersList}
+            emptyText="No books saved."
+            className="mb-4"
+          />
         </>
       )}
     </div>

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserMembershipApi } from "../API/membershipAPI";
 import { useAuth } from "../Authentication/AuthContext";
 import { FaPlus } from "react-icons/fa";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -9,51 +8,45 @@ import "../Styling/Background.css";
 import "../Styling/Tile.css";
 import { createClubApi } from "../API/BookClubAPI";
 import { toast } from "react-toastify";
+import { getUnreadMessages } from "../API/MessagesAPI";
+import { useMembership } from "../Contexts/MembershipContext";
 
 export function ClubList() {
   const navigate = useNavigate();
   const auth = useAuth();
-  const username = auth.user;
-  const [clubs, setClubs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const username = auth.user?.username || auth.user; // tolerate object/string
+
+  const { memberships, loading, refresh } = useMembership(); // <-- use context
   const [add, setAdd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [unread, setUnread] = useState({});
 
+  // load unread counts once memberships are known (or on username change)
   useEffect(() => {
-    let mounted = true;
     if (!username) return;
-
-    setLoading(true);
-    getUserMembershipApi(username)
+    getUnreadMessages(username) // must accept a string on your API side
       .then((response) => {
-        if (mounted) {
-          console.log("Membership Data : ", response.data);
-          setClubs(response.data || []);
-        }
+        setUnread(response.data || {});
       })
-      .catch((error) => {
-        console.error("Error fetching membership data : ", error);
-        if (mounted) setClubs([]);
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
+      .catch((e) => {
+        console.error("Unread fetch failed:", e);
+        setUnread({});
       });
+  }, [username, memberships]); // refresh when clubs change
 
-    return () => {
-      mounted = false;
-    };
-  }, [username,add]);
-
-  const handleAddClub = (values) => {
-    console.log("Adding a club with details:", values);
-    createClubApi(values)
-    .then((response)=>{
-      console.log("Club creation response : ",response);
+  const handleAddClub = async (values) => {
+    try {
+      setSubmitting(true);
+      await createClubApi(values);
       toast.success("Club created successfully");
-    })
-    .catch((err)=>{
-      console.log(err);
-    })
+      await refresh();       // <-- pull latest memberships
+      setAdd(false);         // close modal
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to create club");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -78,8 +71,8 @@ export function ClubList() {
           <div className="text-light fw-bold">Loading your Clubs...</div>
         ) : (
           <div className="text-light">
-            {clubs && clubs.length ? (
-              clubs.map((club, i) => (
+            {memberships && memberships.length ? (
+              memberships.map((club, i) => (
                 <div
                   key={club.id}
                   className="tile-bg bg-dark fs-4 mt-2 py-10 px-3 d-flex justify-content-between align-items-center"
@@ -87,7 +80,7 @@ export function ClubList() {
                     width: "calc(100% - 10px)",
                     transition: "transform 0.2s",
                     borderColor: "black",
-                    borderRadius: "5px",
+                    borderRadius: "20px",
                     height: "100px",
                   }}
                   onMouseEnter={(e) =>
@@ -100,13 +93,27 @@ export function ClubList() {
                     navigate(
                       `/clubs/${club.id}/${encodeURIComponent(club.name)}/chat`
                     );
-                    console.log("Clubname : ", club.name);
-                    console.log("Clubid : ", club.id);
                   }}
                 >
                   <span className="flex-start">
                     {i + 1}. {club.name}
                   </span>
+
+                  {/* ✅ show badge only when count > 0 */}
+                  {Number(unread[club.id]) > 0 && (
+                    <div
+                      className="border d-flex align-items-center justify-content-center"
+                      style={{
+                        width: "30px",
+                        height: "30px",
+                        borderRadius: "50%",
+                        backgroundColor: "green",
+                        color: "white",
+                      }}
+                    >
+                      <span>{unread[club.id]}</span>
+                    </div>
+                  )}
                 </div>
               ))
             ) : (
@@ -144,122 +151,122 @@ export function ClubList() {
 
       {/* Popup Form */}
       {add && (
-          <div className="d-flex justify-content-center align-items-center w-100"
+        <div
+          className="d-flex justify-content-center align-items-center w-100"
           style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100vw",
-                height: "100vh",
-                backgroundColor: "rgba(0,0,0,0.6)",  // semi-transparent black
-                backdropFilter: "blur(6px)",         // <-- blur effect
-                WebkitBackdropFilter: "blur(6px)",   // Safari support
-                zIndex: 1500,                        // on top of everything
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-          }}>
-                <div
-                  className="tile-bg text-light fs-5 justify-content-center align-items-center"
-                  style={{
-                    position: "fixed",
-                    left:"50%",
-                    top:"50%",
-                    transform: "translate(-50%, -50%)",
-                    zIndex: 2000,
-                    border: "1px solid #ddd",
-                    borderRadius: "12px",
-                    padding: "12px",
-                    width: "90%",
-
-                    background: "#222",
-                    boxShadow: "0 4px 8px rgba(124, 32, 32, 0.38)",
-                  }}
-                >
-                  <h4 className="mb-3">Add Club Details</h4>
-
-                  <Formik
-          initialValues={{
-            name: "",
-            description: "",
-            visibility: "PUBLIC",
-            admin: "",
-          }}
-          validationSchema={Yup.object({
-            name: Yup.string().required("Required"),
-            description: Yup.string().required("Required"),
-            visibility: Yup.string().required("Required"),
-            admin: Yup.string().required("Required"),
-          })}
-          onSubmit={(values, { setSubmitting, resetForm }) => {
-            setSubmitting(true);
-            handleAddClub(values);
-            setSubmitting(false);
-            resetForm();
-            setAdd(false); // ✅ close popup after submit
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.6)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+            zIndex: 1500,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          {({ isSubmitting, submitCount }) => (
-            <Form>
-              <div className="mb-3 text-light bg-dark">
-                <label className="form-label">Club Name</label>
-                <Field className="form-control bg-secondary text-light" name="name" />
-                {submitCount > 0 && (
-                  <ErrorMessage name="name" component="div" className="text-danger" />
-                )}
-              </div>
+          <div
+            className="tile-bg text-light fs-5 justify-content-center align-items-center"
+            style={{
+              position: "fixed",
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 2000,
+              border: "1px solid #ddd",
+              borderRadius: "12px",
+              padding: "12px",
+              width: "90%",
+              background: "#222",
+              boxShadow: "0 4px 8px rgba(124, 32, 32, 0.38)",
+            }}
+          >
+            <h4 className="mb-3">Add Club Details</h4>
 
-              <div className="mb-3">
-                <label className="form-label ">Description</label>
-                <Field as="textarea" className="form-control bg-secondary text-light" rows="3" name="description" />
-                {submitCount > 0 && (
-                  <ErrorMessage name="description" component="div" className="text-danger" />
-                )}
-              </div>
+            <Formik
+              initialValues={{
+                name: "",
+                description: "",
+                visibility: "PUBLIC",
+                admin: username || "", // prefill if you want
+              }}
+              validationSchema={Yup.object({
+                name: Yup.string().required("Required"),
+                description: Yup.string().required("Required"),
+                visibility: Yup.string().required("Required"),
+                admin: Yup.string().required("Required"),
+              })}
+              onSubmit={async (values, { setSubmitting, resetForm }) => {
+                await handleAddClub(values);
+                resetForm();
+              }}
+            >
+              {({ isSubmitting, submitCount }) => (
+                <Form>
+                  <div className="mb-3 text-light bg-dark">
+                    <label className="form-label">Club Name</label>
+                    <Field className="form-control bg-secondary text-light" name="name" />
+                    {submitCount > 0 && (
+                      <ErrorMessage name="name" component="div" className="text-danger" />
+                    )}
+                  </div>
 
-              <div className="mb-3">
-                <label className="form-label">Visibility</label>
-                <Field as="select" className="form-select bg-secondary text-light" name="visibility">
-                  <option value="PUBLIC">Public</option>
-                  <option value="PRIVATE">Private</option>
-                </Field>
-                {submitCount > 0 && (
-                  <ErrorMessage name="visibility" component="div" className="text-danger" />
-                )}
-              </div>
+                  <div className="mb-3">
+                    <label className="form-label ">Description</label>
+                    <Field
+                      as="textarea"
+                      className="form-control bg-secondary text-light"
+                      rows="3"
+                      name="description"
+                    />
+                    {submitCount > 0 && (
+                      <ErrorMessage name="description" component="div" className="text-danger" />
+                    )}
+                  </div>
 
-              <div className="mb-3">
-                <label className="form-label">Admin</label>
-                <Field className="form-control bg-secondary text-light" name="admin" />
-                {submitCount > 0 && (
-                  <ErrorMessage name="admin" component="div" className="text-danger" />
-                )}
-              </div>
+                  <div className="mb-3">
+                    <label className="form-label">Visibility</label>
+                    <Field as="select" className="form-select bg-secondary text-light" name="visibility">
+                      <option value="PUBLIC">Public</option>
+                      {/* <option value="PRIVATE">Private</option> */}
+                    </Field>
+                    {submitCount > 0 && (
+                      <ErrorMessage name="visibility" component="div" className="text-danger" />
+                    )}
+                  </div>
 
-              <div className="d-flex justify-content-between">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setAdd(false)} // ✅ Close without posting
-                >
-                  Close
-                </button>
-                <button
+                  <div className="mb-3">
+                    <label className="form-label">Admin</label>
+                    <Field className="form-control bg-secondary text-light" name="admin" />
+                    {submitCount > 0 && (
+                      <ErrorMessage name="admin" component="div" className="text-danger" />
+                    )}
+                  </div>
 
-                  type="submit"
-                  className="btn btn-warning"
-                  disabled={isSubmitting || submitting}
-                  onClick={handleAddClub}
-                >
-                  {isSubmitting || submitting ? "Creating…" : "Create Club"}
-                </button>
-              </div>
-            </Form>
-          )}
-        </Formik>
-
-        </div>
+                  <div className="d-flex justify-content-between">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setAdd(false)}
+                    >
+                      Close
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-warning"
+                      disabled={isSubmitting || submitting}
+                    >
+                      {isSubmitting || submitting ? "Creating…" : "Create Club"}
+                    </button>
+                  </div>
+                </Form>
+              )}
+            </Formik>
           </div>
+        </div>
       )}
     </div>
   );

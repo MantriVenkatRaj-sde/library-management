@@ -3,6 +3,7 @@ import { apiClient } from "../API/apiClient";
 import { UseJwtAuth } from "../API/JWTAuthentication";
 import { signUpAPI } from "../API/signUpAPI";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 // import { signupAPI } from "../API/UserAPI";
 
 
@@ -19,6 +20,7 @@ export default function AuthProvider({children}){
         const response = await signUpAPI(user);
         if (response.status === 200) {
         console.log("SignUp successful");
+        toast.success('Welcome to the family!')
         return true;
         } else {
         console.log("SignUp failed");

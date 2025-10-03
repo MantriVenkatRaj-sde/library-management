@@ -43,7 +43,7 @@ function App() {
         <Route path="/home" element={<AuthenticatePath><HomeComponent /></AuthenticatePath>} />
         <Route path="/library" element={<AuthenticatePath><LibraryComponent /></AuthenticatePath>}/>
         <Route path="/clubs" element={<AuthenticatePath><ClubList /></AuthenticatePath>} />
-        <Route path="/home/book/:isbn" element={<AuthenticatePath><BookComponent /></AuthenticatePath>} />
+        <Route path="/book/:isbn/:title" element={<AuthenticatePath><BookComponent /></AuthenticatePath>} />
         <Route path="/clubs/bookclub/:clubId/:clubname" element={<AuthenticatePath><BookClub /></AuthenticatePath>} />
         <Route path="/:genre/books" element={<AuthenticatePath><SearchByTagComponent /></AuthenticatePath>} />
         <Route path="/clubs/:clubid/:clubname/chat" element={<AuthenticatePath><Chat /></AuthenticatePath>} />

@@ -6,7 +6,7 @@ import { useChatContext } from "../context/ChatContext";
 import { toast } from "react-toastify";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { getClubMessagesSinceApi, postMessageViaRest } from "../API/MessagesAPI";
+import { getClubAllMessagesApi, getClubMessagesSinceApi, postMessageViaRest } from "../API/MessagesAPI";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../Authentication/AuthContext";
 import "../Styling/Background.css";
@@ -80,7 +80,7 @@ export function Chat() {
     let isMounted = true;
     (async () => {
       try {
-        const resp = await getClubMessagesSinceApi(clubName);
+        const resp = await getClubAllMessagesApi(clubName,userName);
         const arr = Array.isArray(resp) ? resp : (resp?.data && Array.isArray(resp.data) ? resp.data : []);
         const normalized = arr.map((m) => ({
           id: m.id,
@@ -181,19 +181,20 @@ export function Chat() {
     navigate(-1);
   }
 
-  /* ---------- UI ---------- */
+
+
   return (
     <div className="d-flex flex-column vh-100 w-100 text-light">
       <header
         className="d-flex align-items-center p-3 bg-dark text-light"
-        style={{ height: 60, flexShrink: 0, boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
+        style={{ height: 50, flexShrink: 0, boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
       >
         <div className="d-flex align-items-center" style={{ position: "absolute", left: 15 }}>
           <button
             className="btn btn-secondary me-2"
             type="button"
             onClick={handleBack}
-            style={{ backgroundColor: "Red", transition: "transform 0.2s" }}
+            style={{ backgroundColor: "Red", transition: "transform 0.2s", borderRadius:"50%"}}
             title="Back"
             onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
             onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
@@ -213,8 +214,9 @@ export function Chat() {
 
       <div
         ref={chatBoxRef}
-        className="rounded overflow-auto px-2 py-2 component"
-        style={{ flex: 1, width: "100%",overflow:"hidden"}}
+        className=" overflow-auto px-2 py-2 component"
+        style={{ flex: 1, width: "100%",overflow:"hidden", minHeight: 0 }}
+        overflow="hidden"
         aria-live="polite"
       >
         {messages.length === 0 ? (

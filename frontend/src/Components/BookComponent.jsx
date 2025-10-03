@@ -1,6 +1,7 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getBookRatings, findBookByISBN, postReviewAndRating, UnLikeABook, LikeABook, deleteRating } from "../API/bookAPI";
 import { useEffect, useRef, useState } from "react";
+import { FaTrash } from "react-icons/fa";
 import "../Styling/bookPageStyle.css";
 import "../Styling/Tile.css";
 import "../Styling/Background.css";
@@ -11,14 +12,17 @@ import { addToReadersList, removeFromReadersList } from "../API/ReadListAPI";
 import { toast } from "react-toastify";
 import { useAuth } from "../Authentication/AuthContext";
 import { isBookLiked, isBookSaved } from "../API/userAPI";
+import { BookRow } from "./BookRow";
+import { ContentBasedRecommendationByIsbn, ContentBasedRecommendationByTitle } from "../API/RecommendationAPI";
 
 export function BookComponent() {
-  const { isbn } = useParams();
+  const { isbn,title } = useParams();
   const [bookDetails, setBookDetails] = useState(null);
   const [bookClubs, setBookClubs] = useState(null);
   const [loading1, setLoading1] = useState(true);
   const [loading2, setLoading2] = useState(true);
   const [loading3, setLoading3] = useState(true);
+  const [loading4, setLoading4] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [ratings, setRatings] = useState([]);
@@ -28,8 +32,19 @@ export function BookComponent() {
   const [posted, setPosted] = useState(false);
   const [rated, setRated] = useState(false);
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
+  const [clickedDelete,setClickedDelete]=useState({id:-1,clicked:false});
+  const [page,setPage]=useState(0);
+  const [totalRatings,setTotalRatings]=useState(0);
+  
+  const [similarBooks,setSimilarBooks]=useState([]);
   const auth = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+  setPage(0);
+  setRatings([]);
+  setTotalRatings(0);
+}, [isbn]);
 
   // Dragging logic
   const clamp = (v, min, max) => Math.max(min, Math.min(v, max));
@@ -78,17 +93,43 @@ export function BookComponent() {
     window.addEventListener("pointerup", onUp);
   };
 
-  // Fetch book details
-  useEffect(() => {
-    if (!isbn) return;
-    let mounted = true;
-    setLoading1(true);
-    findBookByISBN(isbn)
-      .then((response) => mounted && setBookDetails(response.data))
-      .catch(() => mounted && setBookDetails(null))
-      .finally(() => mounted && setLoading1(false));
-    return () => { mounted = false; };
-  }, [isbn]);
+useEffect(() => {
+  if (!isbn) return;
+
+  let mounted = true;
+  setLoading1(true);
+  setLoading4(true);
+
+  const fetchBookDetails = findBookByISBN(isbn);
+  const fetchSimilarBooks = ContentBasedRecommendationByTitle(title || "", 25);
+
+  Promise.all([fetchBookDetails, fetchSimilarBooks])
+    .then(([bookResponse, similarResponse]) => {
+      if (!mounted) return;
+      // Book details
+      setBookDetails(bookResponse.data);
+
+      // Similar books
+      setSimilarBooks(similarResponse.data.items);
+      
+      console.log("Book Details:", bookResponse.data);
+      console.log("Similar Books:", similarResponse.data.items);
+    })
+    .catch((err) => {
+      if (!mounted) return;
+      console.error("Error fetching data:", err);
+      setBookDetails(null);
+      setSimilarBooks([]);
+    })
+    .finally(() => {
+      if (!mounted) return;
+      setLoading1(false);
+      setLoading4(false);
+    });
+
+  return () => { mounted = false; };
+}, [isbn]);
+
 
   // Fetch related clubs
   useEffect(() => {
@@ -103,16 +144,49 @@ export function BookComponent() {
   }, [isbn]);
 
   // Fetch ratings
-  useEffect(() => {
-    if (!isbn) return;
-    let mounted = true;
-    setLoading3(true);
-    getBookRatings(isbn)
-      .then((response) => mounted && setRatings(response.data))
-      .catch(() => mounted && setRatings([]))
-      .finally(() => mounted && setLoading3(false));
-    return () => { mounted = false; };
-  }, [isbn]);
+
+ useEffect(() => {
+  if (!isbn) return;
+
+  let mounted = true;
+  setLoading3(true);
+
+  getBookRatings(isbn, page, 5) // page & pageSize
+    .then((response) => {
+      if (!mounted) return;
+
+      console.log("from Comments response : ", response.data);
+
+      // Always fallback to empty array & zero total
+      const newRatings = response?.data?.ratings || [];
+      const total = response?.data?.total || 0;
+
+      if (page === 0) {
+        // first page → replace
+        setRatings(newRatings);
+      } else {
+        // append next pages safely
+        setRatings(prev => [...prev, ...newRatings]);
+      }
+
+      setTotalRatings(total);
+    })
+    .catch((err) => {
+      console.error("Failed to fetch ratings:", err);
+      if (mounted) {
+        setRatings([]);
+        setTotalRatings(0);
+      }
+    })
+    .finally(() => {
+      if (mounted) setLoading3(false);
+    });
+
+  return () => { mounted = false; };
+}, [isbn, page]);
+
+
+
 
   // Persist liked & saved state
   useEffect(() => {
@@ -191,10 +265,12 @@ export function BookComponent() {
       });
   };
 
-  const handleDelete = (ratingId) => {
-    deleteRating(auth.user, isbn, ratingId)
+  const handleDelete = () => {
+    if(!clickedDelete) return;
+    deleteRating(auth.user, isbn, clickedDelete.id)
       .then(() => {
-        setRatings((prev) => prev.filter((r) => r.id !== ratingId));
+        setRatings((prev) => prev.filter((r) => r.id !== clickedDelete.id));
+        setClickedDelete({clicked:false,id:-1})
         toast.success("Review deleted!");
       })
       .catch(() => toast.error("Failed to delete review."));
@@ -204,15 +280,17 @@ export function BookComponent() {
       className="component bookcontainer overflow-auto"
       style={{
         // backgroundImage: `url(${libraryBg})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
+        // backgroundSize: "cover",
+        // backgroundPosition: "center",
+        // backgroundRepeat: "no-repeat",
         minHeight: "100vh",
         width: "100%",
         display: "flex",
         justifyContent: "center",
         paddingTop: "90px",
+           overflow:'hidden'
       }}
+   
     >
       <div className="d-flex flex-column align-items-center my-4">
         <div className="img-container">
@@ -237,7 +315,7 @@ export function BookComponent() {
             )}
           </button>
 
-          {/* ReadList Button */}
+          {/* ReadList/Save Button */}
           <button onClick={handleAddClick} className="like-button" 
           style={{background:"transparent",border:"0",color:"white"}}
           >
@@ -313,6 +391,7 @@ export function BookComponent() {
         </div>
       </div>
 
+      {/* Related Book Clubs */}
       <div className="my-container ">
         <h2 className="text-light fs-3 fw-bold mb-5">Related Book Clubs</h2>
         <span
@@ -357,15 +436,25 @@ export function BookComponent() {
           )}
         </span>
       </div>
-          <div className="d-flex w-100 flex-column justify-content-center align-items-center">
+
+    <div className="d-flex align-items-center justify-content-center"
+        style={{ width: "100%", overflow: "hidden" }}>  {/* hide horizontal overflow */}
+      <div className="text-light fs-4 text-start" style={{ width: "100%" }}>
+          <BookRow title="Similar Books" books={similarBooks}></BookRow>
+      </div>
+    </div>
+
+
+      {/* Comments */}
+      <div className="d-flex w-100 flex-column justify-content-center align-items-center">
             <div className="w-100 d-flex flex-column justify-content-center">
               <h2 className="text-light fs-2 fw-bold mb-5">Comments</h2>
             </div>
 
            {loading3 ? (
               <div className="text-light">Loading...</div>
-            ) : ratings.length === 0 ? (
-              <div className="text-light">No Comments</div>
+            ) : ratings && ratings.length === 0 ? (
+              <div className="text-light mb-3">No Comments</div>
             ) : (
               [...ratings]
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -380,29 +469,80 @@ export function BookComponent() {
                         {new Date(r.createdAt).toLocaleString()}
                       </span>
                     </div>
-                    <div className="w-100">
-                      <div className="text-start">{r.review}</div>
-                        <div className="text-end">
-                          <button
-                            onClick={() => handleDelete(r.id)}
-                            style={{
-                              background: "transparent",
-                              border: "none",
-                              color: "red",
-                              fontSize: "20px",
-                              cursor: "pointer",
-                              marginLeft: "8px",
-                            }}
-                            title="Delete review"
-                          >
-                            &minus;
-                          </button>
-                        </div>
+                 <div className="w-100 d-flex align-items-center justify-content-between">
+            {/* Comment Text */}
+            <div className="text-start">
+              {r.review}
+            </div>
+
+            {/* Trash Icon (only visible to the comment owner) */}
+            {(auth.user === r.username) && (
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  // handleDelete(r.id)
+                  setClickedDelete({clicked:true,id:r.id});
+                }}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  fontSize: "20px",
+                  cursor: "pointer",
+                  marginLeft: "8px",
+                }}
+                title="Delete review"
+              >
+                <FaTrash size={20}/>
+              </button>
+            )}
+          </div>
+
                   </div>
+                ))
+                
+            )}
+        {ratings && ratings.length > totalRatings && (
+        <button
+          className="btn btn-standard text-light"
+          style={{ transition: "transform 0.6s" }}
+          onClick={() => setPage(prev => prev + 1)}
+          onMouseEnter={(e) => e.currentTarget.style.scale = '1.2'}
+          onMouseLeave={(e) => e.currentTarget.style.scale = '1'}
+        >
+          {loading3 ? "Loading..." : "Load more..."}
+        </button>
+      )}
+
         </div>
-      ))
-  )}
-        </div>
+          
+        {/* If you want to delete the comment */}
+        {
+          clickedDelete.clicked && 
+           <div
+                    className="d-flex justify-content-center align-items-center w-100"
+                    style={{
+                      position: "fixed",
+                      top: 0,
+                      left: 0,
+                      width: "100vw",
+                      height: "100vh",
+                      backgroundColor: "rgba(0,0,0,0.6)",
+                      backdropFilter: "blur(6px)",
+                      WebkitBackdropFilter: "blur(6px)",
+                      zIndex: 1500,
+                    }}
+                    onClick={()=>{setClickedDelete({id:-1,clicked:false})}}
+                >
+                  <div className="text-light fs-2 flex-column">Delet this comment?
+                    <div className="d-flex justify-content-center">
+                      <button className="btn btn-primary me-4" onClick={handleDelete}>Yes</button>
+                      <button className="btn btn-danger " onClick={()=>{setClickedDelete(false)}}>No</button>
+                    </div>
+                  </div>
+                  
+                </div>
+        }
+
 
           {/* Floating Button */}
       {!open && (
@@ -570,6 +710,7 @@ export function BookComponent() {
         </div>
       )
       }
+      
     </div>
   );
 }

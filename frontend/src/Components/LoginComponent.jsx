@@ -8,6 +8,8 @@ import { useAuth } from "../Authentication/AuthContext";
 import { useState } from "react";
 import { getAllGenres } from "../API/GenreAPI";
 import { useGenres } from "../Contexts/GenreContext";
+import { useMembership } from "../Contexts/MembershipContext";
+import { getUserMembershipApi } from "../API/membershipAPI";
 
 
 export function LoginComponent() {
@@ -25,36 +27,61 @@ export function LoginComponent() {
   const navigate=useNavigate();
   const [message,setMessage]=useState("");
   const {genres,setGenres}=useGenres();
-  async function handleLogin(values){
-    try{const result = await auth.login(values.username, values.password);
-      setAuthenticated(result); 
-      if(result){
+  const {memberships, setMemberships} = useMembership(); 
+  
 
-        console.log(values);
-        console.log("Logged In Successfully");
-         try {
-          const response = await getAllGenres(); // await the API call
-          // assuming response.data is an array of genres
-          setGenres(response.data);
-          console.log("Genres loaded:", response.data);
-        } catch (err) {
-          console.error("Failed to fetch genres:", err);
-          setGenres([]); // fallback to empty array so UI doesn't break
-        }
+ async function handleLogin(values) {
+  try {
+    const result = await auth.login(values.username, values.password);
+    setAuthenticated(result);
 
-                          
-        navigate(`/home`);
-      }
-      else{
-        console.log("User not authenticated");
-        setMessage("New Reader? Create an account ! Sign Up !");
-        navigate(`/login`)
-      }
+    if (!result) {
+      console.log("User not authenticated");
+      setMessage("New Reader? Create an account ! Sign Up !");
+      navigate("/login");
+      return;
     }
-    catch(errors){
-      console.log(errors);
+
+    console.log(values);
+    console.log("Logged In Successfully");
+
+    try {
+      console.log("Before Membership API=> Username  ",auth.user);
+      // run in parallel
+      const [respGenres, respMemberships] = await Promise.all([
+        getAllGenres(),
+        // pass username (not the whole user object) unless your API expects the object
+        getUserMembershipApi(values.username)
+      ]);
+
+      // normalize shapes robustly
+      const genres =
+        Array.isArray(respGenres?.data) ? respGenres.data :
+        Array.isArray(respGenres) ? respGenres :
+        Array.isArray(respGenres?.data?.data) ? respGenres.data.data : [];
+
+      const membershipsData =
+        Array.isArray(respMemberships?.data) ? respMemberships.data :
+        Array.isArray(respMemberships) ? respMemberships :
+        Array.isArray(respMemberships?.data?.content) ? respMemberships.data.content : [];
+
+      setGenres(genres);
+      setMemberships(membershipsData);
+
+      console.log("Genres loaded:", genres);
+      console.log("Membership loaded:", membershipsData);
+    } catch (err) {
+      console.error("Error in Login Component :", err);
+      setGenres([]);
+      setMemberships([]);
     }
+
+    navigate("/home");
+  } catch (errors) {
+    console.log(errors);
   }
+}
+
 
 
   return (

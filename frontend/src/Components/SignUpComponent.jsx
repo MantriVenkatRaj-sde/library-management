@@ -3,12 +3,13 @@ import * as Yup from "yup";
 import "../Styling/form.css";
 import "../Styling/nav.css";
 import libraryBg from "../Images/bgSignUp4.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../Authentication/AuthContext";
 
 export function SignUpComponent() {
 
   const auth=useAuth();
+  const navigate=useNavigate();
   
   function handleSignUp(values){
     try{
@@ -20,10 +21,11 @@ export function SignUpComponent() {
             age:values.age,
             password:values.password
         }
-      auth.signup(user);
+      let response=auth.signup(user);
       console.log("Registered Successfully");
+      if(response) navigate(`/login`)
     }   
-    catch(error){
+    catch(error){ 
       console.log(error);
     }
   }

@@ -12,6 +12,7 @@ import { GenresProvider } from './Contexts/GenreContext';
 import { UserContextProvider } from './context/UserContext';
 import { ChatProvider } from './context/ChatContext';
 import AuthProvider from './Authentication/AuthContext';
+import { MembershipProvider } from './Contexts/MembershipContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const queryClient = new QueryClient();
@@ -22,9 +23,11 @@ root.render(
       <QueryClientProvider client={queryClient}>
         <UserContextProvider>
           <GenresProvider>
+            <MembershipProvider>
             <ChatProvider>
               <App />
             </ChatProvider>
+            </MembershipProvider>
           </GenresProvider>
         </UserContextProvider>
       </QueryClientProvider>

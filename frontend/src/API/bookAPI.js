@@ -1,7 +1,7 @@
 import { apiClient } from "./apiClient";
 
-export function getAllBooks(){
-    return apiClient.get(`/all-books`);
+export function getAllBooks(page,size){
+    return apiClient.get(`/all-books`,{params:{page:page,size:size}});
 }
 
 export function findByAuthor(author) {
@@ -28,8 +28,8 @@ export function postReviewAndRating(username,isbn,rating,review){
     const req={rating:rating,review:review}
     return apiClient.post(`/users/${encodeURIComponent(username)}/books/${encodeURIComponent(isbn)}/add-rating`,req)
 }
-export function getBookRatings(isbn){
-  return apiClient.get(`/book/${encodeURIComponent(isbn)}/ratings`)
+export function getBookRatings(isbn,page,size){
+  return apiClient.get(`/book/${encodeURIComponent(isbn)}/ratings`,{params:{page:page,size:size}})
 }
 
 export function getLikedBooks(username){

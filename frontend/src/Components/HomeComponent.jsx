@@ -2,32 +2,64 @@ import { useQuery } from "@tanstack/react-query";
 import { BookRow } from "../Components/BookRow";
 import "../Styling/Home.css";
 import { getAllBooks } from "../API/bookAPI";
+import { useEffect, useState } from "react";
+import { useAuth } from "../Authentication/AuthContext";
 
 export function HomeComponent() {
+  const auth = useAuth();
+  const [page, setPage] = useState(0);
+  const [books, setBooks] = useState([]);
+
   const { data: allBooks = [], isLoading } = useQuery({
-    queryKey: ["books","home"],
+    queryKey: ["books", page],
     queryFn: async () => {
-      const response = await getAllBooks();
+      const response = await getAllBooks(page, 40);
       return response?.data ?? [];
     },
-    staleTime: 1000 * 60 * 60, // 1 hour cache
+    keepPreviousData: true,
+    staleTime: 1000 * 60 * 60,
   });
 
-  const row1 = allBooks.slice(1, 10);
-  const row2 = allBooks.slice(10, 20);
-  const row3 = allBooks.slice(20, 30);
-  const row4 = allBooks.slice(30, 40);
+  // Append new books to the existing list
+  useEffect(() => {
+    if (allBooks.length > 0) {
+      setBooks(prev => [...prev, ...allBooks]);
+    }
+  }, [allBooks]);
+
+  // Function to split books into chunks of 5
+  const chunkBooks = (arr, size) => {
+    const chunks = [];
+    for (let i = 0; i < arr.length; i += size) {
+      chunks.push(arr.slice(i, i + size));
+    }
+    return chunks;
+  };
+
+  const bookRows = chunkBooks(books, 15);
 
   return (
-    <div className="home-container">
-      {isLoading ? (
+    <div className="home-container component">
+      <h1 className="text-light">Books you might like</h1>
+      {isLoading && books.length === 0 ? (
         <p>Loading books...</p>
       ) : (
         <>
-          <BookRow title="Testing Row" books={row1} />
-          <BookRow title="Top Picks for You" books={row2} />
-          <BookRow title="New Releases" books={row3} />
-          <BookRow title="Based on What You Read" books={row4} />
+          {bookRows.map((rowBooks, index) => (
+            <BookRow key={index} title={``} books={rowBooks} />
+          ))}
+
+          <button
+            className="btn btn-standard text-light"
+            style={{
+              transition:"transform 0.6s"
+            }}
+            onClick={() => setPage(prev => prev + 1)}
+            onMouseEnter={(e)=>e.currentTarget.style.scale='1.2'}
+            onMouseLeave={(e)=>e.currentTarget.style.scale='1'}
+          >
+            {isLoading ? "Loading..." : "Load more..."}
+          </button>
         </>
       )}
     </div>
