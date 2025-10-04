@@ -11,6 +11,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../Authentication/AuthContext";
 import "../Styling/Background.css";
 import "../Styling/Chat.css";
+import { BASE_URL } from "../API/apiClient";
 
 /* ---------- per-user color helpers ---------- */
 const PALETTE = [
@@ -103,7 +104,7 @@ export function Chat() {
 
     const connectHeaders = auth?.token ? { Authorization: auth.token } : {};
     const client = new Client({
-      webSocketFactory: () => new SockJS("http://bookcircle-sprinboot-server-alb-1527815027.ap-south-1.elb.amazonaws.com:8080/chat"),
+      webSocketFactory: () => new SockJS(`${BASE_URL}/chat`),
       connectHeaders,
       reconnectDelay: 5000,
       debug: (msg) => console.debug("[STOMP DEBUG]", msg),
