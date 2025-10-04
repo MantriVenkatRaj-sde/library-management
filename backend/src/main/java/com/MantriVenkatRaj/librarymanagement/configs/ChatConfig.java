@@ -27,11 +27,17 @@ public class ChatConfig implements WebSocketMessageBrokerConfigurer {
         config.enableSimpleBroker("/topic");
         config.setApplicationDestinationPrefixes("/app");
     }
-
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/chat")
-                .setAllowedOriginPatterns("http://localhost:3000")
+                // allow localhost for dev + your vercel app(s)
+                .setAllowedOriginPatterns(
+                        "http://localhost:3000",
+//                        "https://your-vercel-app.vercel.app",
+                        "https://*.vercel.app"
+//                        "https://www.yourcustomdomain.com" // optional: your custom domain
+                )
                 .withSockJS();
     }
+
 }
