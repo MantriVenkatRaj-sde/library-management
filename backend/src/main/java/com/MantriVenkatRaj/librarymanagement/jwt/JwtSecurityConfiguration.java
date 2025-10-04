@@ -186,13 +186,13 @@ public class JwtSecurityConfiguration {
 public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
-    // Allow only your frontend origin (do NOT use "*")
-    configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+    configuration.setAllowedOriginPatterns(List.of(
+            "http://localhost:3000",
+            "https://*.vercel.app"  // This will match all your Vercel deployments
+    ));
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
     configuration.setAllowedHeaders(List.of("*"));
-    configuration.setAllowCredentials(true); // <--- critical: return Access-Control-Allow-Credentials: true
-
-    // Expose Authorization header if you need client-side access to it
+    configuration.setAllowCredentials(true);
     configuration.setExposedHeaders(List.of("Authorization"));
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
