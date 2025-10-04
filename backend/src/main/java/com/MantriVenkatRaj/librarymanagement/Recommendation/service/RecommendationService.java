@@ -11,7 +11,7 @@ public class RecommendationService {
     private final RestTemplate restTemplate;
 
     @Value("${recs.api.baseurl}")
-    private String baseUrl; // e.g. http://localhost:8001
+    private String baseUrl;
 
     public RecommendationService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
