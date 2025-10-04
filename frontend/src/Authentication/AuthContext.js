@@ -45,7 +45,7 @@ export default function AuthProvider({children}){
 
         // ✅ request interceptor (attach token)
         apiClient.interceptors.request.use((config) => {
-          config.headers.Authorization = jwtToken;
+        apiClient.defaults.headers.Authorization = jwtToken;
           return config;
         });
 
@@ -82,6 +82,8 @@ export default function AuthProvider({children}){
     setIsAuthenticated(false);
     setUser(null);
     setToken(null);
+    apiClient.defaults.headers.Authorization = null;
+
   }
 
   return (

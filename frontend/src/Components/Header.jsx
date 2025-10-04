@@ -61,8 +61,7 @@ export default function Header() {
     const name = g?.name ?? g;
     setQuery(name);
     setTimeout(() => overlayInputRef.current?.focus(), 50);
-    // navigate to a genre route — use the genre name or id depending on your route design
-    setOverlayOpen(false);
+    // navigate to a genre route — use the genre name
     navigate(`/${g}/books`);
   };
 
@@ -97,9 +96,14 @@ export default function Header() {
       <header className="header mb-3" 
       style={{transition:"transform 0.3s"}}>
         <div className="nav-left">
+           <button className="btn btn-standard text-light nav-link" onClick={()=>{navigate(-1)}}
+            style={{transition:"transform 1s"}}
+            onMouseDown={(e)=>e.currentTarget.style.scale="1.2"}
+            onMouseUp={(e)=>e.currentTarget.style.scale="1"}>
+            Back</button>
           {auth.isAuthenticated && <Link to={`/${auth.user}/profile` } className="nav-link">Profile</Link>}
           {auth.isAuthenticated && <Link to="/home" className="nav-link">Home</Link>}
-          
+         
           {auth.isAuthenticated && <Link to="/library" className="nav-link">Library</Link>}
           {auth.isAuthenticated && <Link to={`/clubs`} className="nav-link">Clubs</Link>}
         </div>

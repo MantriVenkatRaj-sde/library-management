@@ -26,7 +26,7 @@ export function SearchByTagComponent() {
   });
 
   // declare rows properly (const)
-  const rows = chunkArray(allBooksOfGenre, 7);
+  const rows = chunkArray(allBooksOfGenre, 25);
 
   return (
     <div className="home-container">

@@ -128,7 +128,7 @@ useEffect(() => {
     });
 
   return () => { mounted = false; };
-}, [isbn]);
+}, [isbn,ratings]);
 
 
   // Fetch related clubs
@@ -155,11 +155,12 @@ useEffect(() => {
     .then((response) => {
       if (!mounted) return;
 
-      console.log("from Comments response : ", response.data);
+      console.log("from Comments response : ", response);
 
       // Always fallback to empty array & zero total
-      const newRatings = response?.data?.ratings || [];
-      const total = response?.data?.total || 0;
+      const newRatings = response?.data || [];
+      const total = response.data.length || 0;
+      console.log("Total : ",total)
 
       if (page === 0) {
         // first page → replace
@@ -249,21 +250,27 @@ useEffect(() => {
   };
 
   const handleRatePost = () => {
-    if (isSubmittingRating) return;
-    setIsSubmittingRating(true);
-    postReviewAndRating(auth.user, isbn, rating, text)
-      .then(() => getBookRatings(isbn))
-      .then((res) => setRatings(res.data))
-      .then(() => toast.success("Comment added!"))
-      .catch(() => toast.error("Failed to add comment"))
-      .finally(() => {
-        setText("");
-        setRating(5);
-        setRated(false);
-        setPosted(false);
-        setIsSubmittingRating(false);
-      });
-  };
+  if (isSubmittingRating) return;
+  setIsSubmittingRating(true);
+
+  postReviewAndRating(auth.user, isbn, rating, text)
+    .then(() => getBookRatings(isbn, 0, 5)) // make sure page & pageSize match your useEffect
+    .then((res) => {
+      const newRatings = res.data || [];
+      setRatings(newRatings);
+      setTotalRatings(res?.data?.total || 0);
+    })
+    .then(() => toast.success("Comment added!"))
+    .catch(() => toast.error("Failed to add comment"))
+    .finally(() => {
+      setText("");
+      setRating(5);
+      setRated(false);
+      setPosted(false);
+      setIsSubmittingRating(false);
+    });
+};
+
 
   const handleDelete = () => {
     if(!clickedDelete) return;
@@ -379,8 +386,6 @@ useEffect(() => {
         <div>
           <StarRating rating={bookDetails.avgRating} />
         </div>
-        <p className="text-muted">Based on {bookDetails.ratingCount}</p>
-
         <div className="d-flex mb-2 fs-5">
           <span className="fw-bold text-success me-2">Based On </span>
           <span className="text-info">{bookDetails.ratingCount} Ratings</span>
@@ -389,6 +394,9 @@ useEffect(() => {
           <span className="fw-bold text-success me-2">Like Percentage:</span>
           <span className="text-info">{bookDetails.likePercent}</span>
         </div>
+
+        <p className="text-light">The average rating depends on the ratings of our users only*</p>
+
       </div>
 
       {/* Related Book Clubs */}

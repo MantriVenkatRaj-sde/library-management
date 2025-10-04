@@ -28,9 +28,11 @@ export function WelcomeComponent(){
         <div className="Welcome-content">
           <h1 className="Welcome-title">Step Into the World of Endless Stories</h1>
           <p className="Welcome-subtitle">
-            Find your next favorite book and let your imagination roam.
+            A place where books bring people closer.
+            Find your next pick. Rate it. Share your opinion
           </p>
-          <button className="cta-btn" onClick={handleclick}>Browse the Library</button>
+          {/* <div className="Welcome-subtitle">Find your next pick. Rate it. Share your opinion</div> */}
+          <button className="cta-btn" onClick={handleclick}>Explore</button>
         </div>
       </div>
     </section>
