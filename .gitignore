@@ -63,3 +63,27 @@ logs/
 # Test / coverage
 coverage/
 *.lcov
+
+
+# ==================
+# Recommendation Service (Python/FastAPI)
+# ==================
+recommendation-service/.venv/
+recommendation-service/venv/
+recommendation-service/__pycache__/
+recommendation-service/**/__pycache__/
+recommendation-service/*.pyc
+recommendation-service/*.pyo
+recommendation-service/*.pyd
+recommendation-service/.Python
+recommendation-service/*.so
+recommendation-service/*.egg
+recommendation-service/*.egg-info/
+recommendation-service/dist/
+recommendation-service/build/
+recommendation-service/.ipynb_checkpoints/
+recommendation-service/**/.ipynb_checkpoints/
+recommendation-service/artifacts/
+recommendation-service/*.pkl
+recommendation-service/*.h5
+recommendation-service/*.model
