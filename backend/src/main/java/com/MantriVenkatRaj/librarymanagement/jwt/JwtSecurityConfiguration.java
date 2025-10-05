@@ -188,6 +188,7 @@ public CorsConfigurationSource corsConfigurationSource() {
 
     configuration.setAllowedOriginPatterns(List.of(
             "http://localhost:3000",
+            "http://localhost:3001",
             "https://*.vercel.app"  // This will match all your Vercel deployments
     ));
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

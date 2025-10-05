@@ -61,35 +61,19 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 //    @Query("SELECT DISTINCT b FROM Book b JOIN b.genres g WHERE g.id = :genreId")
 //    List<Book> findBooksByGenreId(@Param("genreId") Long genreId);
 
-    @Query("""
-      SELECT DISTINCT NEW com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO(
-        b.id, b.isbn, b.title, b.author,
-        bm.imageLink,
-        bor.avgRating, bor.ratingCount
-      )
-      FROM Book b
-      JOIN b.genres g
-      LEFT JOIN b.bookMedia bm
-      LEFT JOIN b.bookOverallRating bor
-      WHERE g.id = :genreId
-    """)
-    List<BookListDTO> findBookListDTOsByGenreId(@Param("genreId") Long genreId);
+    @Query(
+            value = "SELECT DISTINCT NEW com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO(" +
+                    "b.id, b.isbn, b.title, b.author, bm.imageLink, bor.avgRating, bor.ratingCount) " +
+                    "FROM Book b " +
+                    "JOIN b.genres g " +
+                    "LEFT JOIN b.bookMedia bm " +
+                    "LEFT JOIN b.bookOverallRating bor " +
+                    "WHERE g.id = :genreId",
+            countQuery = "SELECT COUNT(DISTINCT b.id) FROM Book b JOIN b.genres g WHERE g.id = :genreId"
+    )
+    Page<BookListDTO> findBookListDTOsByGenreId(@Param("genreId") Long genreId, Pageable pageable);
 
-    @Query("""
-      SELECT DISTINCT NEW com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO(
-        b.id, b.isbn, b.title, b.author,
-        bm.imageLink,
-        bor.avgRating, bor.ratingCount
-      )
-      FROM Book b
-      JOIN b.genres g
-      LEFT JOIN b.bookMedia bm
-      LEFT JOIN b.bookOverallRating bor
-       WHERE LOWER(b.author) LIKE :pattern ESCAPE '!'
-    """)
-    List<BookListDTO> findBooksByAuthorLike(@Param("pattern") String pattern);
-
-    @Query("""
+        @Query("""
       SELECT DISTINCT NEW com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO(
         b.id, b.isbn, b.title, b.author,
         bm.imageLink,
@@ -101,7 +85,21 @@ public interface BookRepository extends JpaRepository<Book, Long> {
       LEFT JOIN b.bookOverallRating bor
       WHERE LOWER(b.title) LIKE :pattern ESCAPE '!'
     """)
-    List<BookListDTO> findBooksByTitleLike(@Param("pattern") String pattern);
+        Page<BookListDTO> findBooksByTitleLike(@Param("pattern") String pattern, Pageable pageable);
+
+        @Query("""
+      SELECT DISTINCT NEW com.MantriVenkatRaj.librarymanagement.book.dtoandmapper.BookListDTO(
+        b.id, b.isbn, b.title, b.author,
+        bm.imageLink,
+        bor.avgRating, bor.ratingCount
+      )
+      FROM Book b
+      JOIN b.genres g
+      LEFT JOIN b.bookMedia bm
+      LEFT JOIN b.bookOverallRating bor
+      WHERE LOWER(b.author) LIKE :pattern ESCAPE '!'
+    """)
+        Page<BookListDTO> findBooksByAuthorLike(@Param("pattern") String pattern, Pageable pageable);
 
 
     boolean existsByIsbn(String isbn);

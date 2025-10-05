@@ -52,12 +52,20 @@ public class BookResource {
        return  bookService.findBookByIsbn(isbn);
     }
     @GetMapping("/{genre}/books")
-    public List<BookListDTO> findBooksByGenres(@PathVariable String genre){
-        return bookService.findBooksByGenres(genre);
+    public ResponseEntity<Page<BookListDTO>> findBooksByGenres(@PathVariable String genre,
+                                               @RequestParam(defaultValue = "0") int page,
+                                               @RequestParam(defaultValue = "50") int size){
+        return ResponseEntity.ok(bookService.findBooksByGenres(genre,page,size));
     }
+
     @GetMapping("/books/search/{q}")
-    public List<BookListDTO> searchQuery(@PathVariable String q){
-        return bookService.searchQuery(q);
+    public Page<BookListDTO> searchQuery(
+            @PathVariable String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size
+    )
+    {
+        return bookService.searchQuery(q, page, size);
     }
 
     @GetMapping("/book/{isbn}/ratings")

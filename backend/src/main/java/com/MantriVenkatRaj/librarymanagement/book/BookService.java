@@ -23,7 +23,10 @@ import jakarta.validation.Valid;
 import org.apache.commons.csv.CSVFormat;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.FileReader;
@@ -329,36 +332,21 @@ public class BookService implements CommandLineRunner {
         bookRepository.save(book);
     }
 
-    public List<BookListDTO> findBooksByGenres(String genreTag) {
+    public Page<BookListDTO> findBooksByGenres(String genreTag, int page, int size) {
+
         Genre genre=genreRepository.findByName(genreTag).orElseThrow(GenreNotFoundException::new);
-//        List<BookListDTO> bookListDTOS=bookRepository.findBooksByGenreId(genre.getId()).stream()
-//                .map(b -> {
-//                    BookListDTO d = BookListDTO.builder()
-//                            .id(b.getId())
-//                            .title(b.getTitle())
-//                            .author(b.getAuthor())
-//                            .isbn(b.getIsbn())
-//                            .imageLink(b.getBookMedia().getImageLink())
-//                            .ratingCount(b.getBookOverallRating().getRatingCount())
-//                            .avgRating(b.getBookOverallRating().getAvgRating())
-//                            .build();
-//                    return d;
-//                }).toList();
-        return bookRepository.findBookListDTOsByGenreId(genre.getId());
+        Pageable pageable=PageRequest.of(page, size);
+        return bookRepository.findBookListDTOsByGenreId(genre.getId(),pageable);
     }
 
-    public List<BookListDTO> searchQuery(String q) {
-        if (q == null) {
-            return Collections.emptyList();
+    public Page<BookListDTO> searchQuery(String q, int page, int size) {
+        if (q == null || q.trim().isEmpty()) {
+            return Page.empty();
         }
 
         String term = q.trim();
-        if (term.isEmpty()) return Collections.emptyList();
-
-        // safety limit
         if (term.length() > 200) term = term.substring(0, 200);
 
-        // escape SQL LIKE wildcards: backslash first, then % and _
         String escaped = term.replace("!", "!!")
                 .replace("%", "!%")
                 .replace("_", "!_");
@@ -366,27 +354,35 @@ public class BookService implements CommandLineRunner {
         String normalized = escaped.toLowerCase(Locale.ROOT);
         String pattern = "%" + normalized + "%";
 
-        // fetch author matches first
-        List<BookListDTO> authorMatches = bookRepository.findBooksByAuthorLike(pattern);
-        if (authorMatches == null) authorMatches = Collections.emptyList();
+        // Fetch ALL results first (we need to merge before paginating)
+        Pageable unpaged = Pageable.unpaged();
+        Page<BookListDTO> authorPage = bookRepository.findBooksByAuthorLike(pattern, unpaged);
+        Page<BookListDTO> titlePage = bookRepository.findBooksByTitleLike(pattern, unpaged);
 
-        // fetch title matches
-        List<BookListDTO> titleMatches = bookRepository.findBooksByTitleLike(pattern);
-        if (titleMatches == null) titleMatches = Collections.emptyList();
-
-        // Merge while preserving order: authorMatches first, then titleMatches that aren't already included.
-        // Use LinkedHashMap keyed by id to preserve insertion order and dedupe.
+        // Merge with deduplication
         Map<Long, BookListDTO> merged = new LinkedHashMap<>();
 
-        for (BookListDTO b : authorMatches) {
+        for (BookListDTO b : authorPage.getContent()) {
             if (b != null && b.getId() != null) merged.put(b.getId(), b);
         }
-        for (BookListDTO b : titleMatches) {
+        for (BookListDTO b : titlePage.getContent()) {
             if (b != null && b.getId() != null) merged.putIfAbsent(b.getId(), b);
         }
 
-        return new ArrayList<>(merged.values());
+        List<BookListDTO> allResults = new ArrayList<>(merged.values());
+
+        // Manual pagination
+        int start = page * size;
+        int end = Math.min(start + size, allResults.size());
+
+        if (start >= allResults.size()) {
+            return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), allResults.size());
+        }
+
+        List<BookListDTO> pageContent = allResults.subList(start, end);
+        return new PageImpl<>(pageContent, PageRequest.of(page, size), allResults.size());
     }
+
 
     public List<BookRatingDTO> getRatings(String isbn) {
         Book book=bookRepository.findByIsbn(isbn).orElseThrow(BookNotFoundException::new);
@@ -434,3 +430,16 @@ public class BookService implements CommandLineRunner {
 //        return bookRepository.findByGenreName(genre);
 //    }
 
+//        List<BookListDTO> bookListDTOS=bookRepository.findBooksByGenreId(genre.getId()).stream()
+//                .map(b -> {
+//                    BookListDTO d = BookListDTO.builder()
+//                            .id(b.getId())
+//                            .title(b.getTitle())
+//                            .author(b.getAuthor())
+//                            .isbn(b.getIsbn())
+//                            .imageLink(b.getBookMedia().getImageLink())
+//                            .ratingCount(b.getBookOverallRating().getRatingCount())
+//                            .avgRating(b.getBookOverallRating().getAvgRating())
+//                            .build();
+//                    return d;
+//                }).toList();
