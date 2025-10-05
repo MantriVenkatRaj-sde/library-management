@@ -86,7 +86,7 @@ export function LoginComponent() {
 
   return (
      <div
-      className="login-container"
+      className="login-container d-flex flex-column"
       style={{
         backgroundImage: `url(${libraryBg})`,
         backgroundSize: "cover",
@@ -140,7 +140,7 @@ export function LoginComponent() {
           </div>
         )}
       </Formik>
-      <div className="text-light">*Already a user? Facing difficulty while Signing in? Try again after reloading the page...</div>
+      <div className="text-light ">*Already a user? Facing difficulty while Signing in? Try again after reloading the page...</div>
     </div>
   );
 }
