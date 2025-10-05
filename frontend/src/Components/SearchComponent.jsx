@@ -92,9 +92,19 @@ export function SearchComponent() {
       )}
 
       {!isLoading && hasMore && booksFromSearch.length > 0 && (
-        <button className="btn btn-standard text-light" onClick={loadMore}>
-          load more...
-        </button>
+      <button
+        className="btn btn-standard"
+        style={{
+          color: "white",
+          transition: "transform 0.3s ease"
+        }}
+        onClick={loadMore}
+        onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.2)"}
+        onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+      >
+        {isLoading ? "Loading..." : "Load more..."}
+      </button>
+
       )}
 
       {!hasMore && booksFromSearch.length > 0 && (
