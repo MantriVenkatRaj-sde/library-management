@@ -6,7 +6,8 @@ import json
 import os
 from sklearn.metrics.pairwise import cosine_similarity
 
-ARTIFACT_DIR = os.getenv("ARTIFACT_DIR", "./artifacts")
+# Use absolute path or environment variable for flexibility
+ARTIFACT_DIR = os.getenv("ARTIFACT_DIR", "../artifacts")  # Default works when running from app/
 VECTORIZER_PATH = os.path.join(ARTIFACT_DIR, "vectorizer.joblib")
 X_PATH = os.path.join(ARTIFACT_DIR, "X_csr.joblib")
 ITEMS_PATH = os.path.join(ARTIFACT_DIR, "items.parquet")
