@@ -71,7 +71,7 @@ export function SearchComponent() {
   const rows = chunkArray(booksFromSearch, 10);
 
   return (
-    <div className="home-container">
+    <div className="home-container component">
       <h2 className="fw-bold ms-4" style={{ textAlign: "left" }}>
         Results including "{q}"
       </h2>
