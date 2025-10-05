@@ -62,6 +62,7 @@ export default function Header() {
     setQuery(name);
     setTimeout(() => overlayInputRef.current?.focus(), 50);
     // navigate to a genre route — use the genre name
+    setOverlayOpen(false);
     navigate(`/${g}/books`);
   };
 

@@ -16,12 +16,12 @@ export function findBookByISBN(isbn) {
     return apiClient.get(`/book/${isbn}`);
 }
 
-export function findBooksByGenre(genre) {
-    return apiClient.get(`/${genre}/books`);
+export function findBooksByGenre(genre,page,size) {
+    return apiClient.get(`/${genre}/books`,{params:{page:page,size:size}});
 }
 
-export function searchQuery(query) {
-    return apiClient.get(`/books/search/${query}`);
+export function searchQuery(query,page,size) {
+    return apiClient.get(`/books/search/${query}`,{params:{page:page,size:size}});
 }
 
 export function postReviewAndRating(username,isbn,rating,review){
