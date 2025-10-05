@@ -140,7 +140,14 @@ export function LoginComponent() {
           </div>
         )}
       </Formik>
-      <div className="text-light ">*Already a user? Facing difficulty while Signing in? Try again after reloading the page...</div>
+      <div className="text-light "
+      style={{
+        bottom:0,
+        left:0,
+        position:"fixed",
+        textAlign:"center",
+        padding:"5px"
+      }}>*Already a user? Facing difficulty while Signing in? Try again after reloading the page...</div>
     </div>
   );
 }
