@@ -76,9 +76,17 @@ export function SearchByTagComponent() {
       {isLoading && <p>Loading books...</p>}
       
       {!isLoading && hasMore && (
-        <button className="btn btn-standard" onClick={loadMore}>
-          LOAD MORE
-        </button>
+       <button
+        className="btn btn-standard text-light"
+        style={{
+          transition: "transform 0.3s ease"
+        }}
+        onClick={loadMore}
+        onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.2)"}
+        onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+      >
+        {isLoading ? "Loading..." : "Load more..."}
+      </button>
       )}
 
       {!hasMore && allBooksOfGenre.length > 0 && (

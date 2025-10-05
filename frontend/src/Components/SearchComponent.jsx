@@ -93,9 +93,8 @@ export function SearchComponent() {
 
       {!isLoading && hasMore && booksFromSearch.length > 0 && (
       <button
-        className="btn btn-dark"
+        className="btn btn-standard text-light"
         style={{
-          color: "white",
           transition: "transform 0.3s ease"
         }}
         onClick={loadMore}
