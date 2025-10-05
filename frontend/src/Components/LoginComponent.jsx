@@ -143,7 +143,6 @@ export function LoginComponent() {
       <div className="text-light "
       style={{
         bottom:0,
-        left:0,
         position:"fixed",
         textAlign:"center",
         padding:"5px"
