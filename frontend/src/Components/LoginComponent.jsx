@@ -36,6 +36,7 @@ export function LoginComponent() {
     setAuthenticated(result);
 
     if (!result) {
+      console.log(result);
       console.log("User not authenticated");
       setMessage("New Reader? Create an account ! Sign Up !");
       navigate("/login");
