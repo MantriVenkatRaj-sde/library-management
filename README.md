@@ -14,15 +14,15 @@ The system is built using Java (Spring Boot) for the backend and JavaScript-base
 The application follows a standard layered architecture:
 
   Client (Browser)
-      ↓
+      ->
   Frontend (JavaScript, HTML, CSS)
-      ↓
+      ->
   REST API (Spring Boot - Java)
-      ↓
+      ->
   Service Layer
-      ↓
+      ->
   Repository Layer
-      ↓
+      ->
   Database
   
 # Backend Architecture Pattern
