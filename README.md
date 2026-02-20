@@ -1,70 +1,57 @@
-# Getting Started with Create React App
+# Bookcircle
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Bookcircle is a full-stack web application designed to enable users to discover, review, and discuss books in a community-driven environment. The platform follows a layered backend architecture and RESTful design principles to ensure scalability, maintainability, and clean separation of concerns.
 
-## Available Scripts
+# Overview
 
-In the project directory, you can run:
+Bookcircle provides a centralized platform where readers can:
+Explore books
+Share reviews and ratings
+Maintain personalized reading lists
+Engage in discussions with other users
+The system is built using Java (Spring Boot) for the backend and JavaScript-based frontend technologies, with Docker support for containerized deployment.
 
-### `npm start`
+The application follows a standard layered architecture:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+  Client (Browser)
+      ↓
+  Frontend (JavaScript, HTML, CSS)
+      ↓
+  REST API (Spring Boot - Java)
+      ↓
+  Service Layer
+      ↓
+  Repository Layer
+      ↓
+  Database
+  
+# Backend Architecture Pattern
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. Controller Layer – Handles HTTP requests
 
-### `npm test`
+2. Service Layer – Contains business logic
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+3. Repository Layer – Manages data persistence
 
-### `npm run build`
+4. Model Layer – Entity definitions
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+5. This structure improves maintainability, testability, and scalability.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Database:
+  NeonDB
+# Core Features
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. User Authentication and Authorization
+2. Book search and browsing
+3. Rating and review system
+4. Comment functionality
+5. Personalized reading list management
+6. Structured REST API endpoints
+8. Dockerized deployment support
 
-### `npm run eject`
+# Jupyter notebooks were used for:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. Exploratory Data Analysis (EDA)
+2. Recommendation logic experimentation
+3. Performance validation
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
