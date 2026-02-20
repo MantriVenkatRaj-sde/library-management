@@ -38,7 +38,7 @@ The application follows a standard layered architecture:
 5. This structure improves maintainability, testability, and scalability.
 
 # Database:
-  NeonDB
+  NeonDB- Serverless PostgreSQL
 # Core Features
 
 1. User Authentication and Authorization
